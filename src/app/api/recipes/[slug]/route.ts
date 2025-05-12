@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import connectToDatabase from '@/lib/db/mongodb';
-import Recipe from '@/lib/models/Recipe';
+import connectToDatabase from '../../../../lib/db/mongodb';
+import Recipe from '../../../../lib/models/Recipe';
 import { handler as authOptions } from '../../auth/[...nextauth]/route';
 
 // Get a recipe by slug
@@ -71,7 +71,7 @@ export async function PUT(
     }
 
     const data = await req.json();
-    
+
     // Update the recipe
     const updatedRecipe = await Recipe.findOneAndUpdate(
       { slug },

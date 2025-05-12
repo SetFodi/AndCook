@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import connectToDatabase from '@/lib/db/mongodb';
-import Recipe from '@/lib/models/Recipe';
+import connectToDatabase from '../../../lib/db/mongodb';
+import Recipe from '../../../lib/models/Recipe';
 import { handler as authOptions } from '../auth/[...nextauth]/route';
 
 // Get all recipes
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await req.json();
-    
+
     // Validate required fields
     if (!data.title || !data.description || !data.mainImage) {
       return NextResponse.json(
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     // Check if slug already exists
     const existingRecipe = await Recipe.findOne({ slug });
     let finalSlug = slug;
-    
+
     if (existingRecipe) {
       finalSlug = `${slug}-${Date.now()}`;
     }

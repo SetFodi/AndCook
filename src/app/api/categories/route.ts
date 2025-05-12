@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import connectToDatabase from '@/lib/db/mongodb';
-import Category from '@/lib/models/Category';
+import connectToDatabase from '../../../lib/db/mongodb';
+import Category from '../../../lib/models/Category';
 import { handler as authOptions } from '../auth/[...nextauth]/route';
 
 // Get all categories
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     // For now, we'll allow any authenticated user to create categories
 
     const { name, description, image } = await req.json();
-    
+
     if (!name) {
       return NextResponse.json(
         { message: 'Category name is required' },
