@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '../../../../lib/db/mongodb';
 import User from '../../../../lib/models/User';
 
-const handler = NextAuth({
+export const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: 'Credentials',

@@ -32,7 +32,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       <Link href={`/recipes/${recipe.slug}`} className="block">
         <div className="relative h-48 w-full">
           <Image
-            src={recipe.mainImage || '/images/recipe-placeholder.jpg'}
+            src={recipe.mainImage || '/recipe-placeholder.svg'}
             alt={recipe.title}
             fill
             className="object-cover"
@@ -45,7 +45,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
             {recipe.description}
           </p>
-          
+
           <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
             <div className="flex items-center">
               <FaClock className="mr-1" />
@@ -60,11 +60,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
               <span>{recipe.averageRating.toFixed(1)}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center mt-2">
             <div className="relative h-8 w-8 rounded-full overflow-hidden">
               <Image
-                src={recipe.author.image || '/images/default-avatar.png'}
+                src={recipe.author.image || '/default-avatar.svg'}
                 alt={recipe.author.name}
                 fill
                 className="object-cover"

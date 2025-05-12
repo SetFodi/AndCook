@@ -40,6 +40,8 @@ interface Pagination {
   page: number;
   limit: number;
   pages: number;
+  totalPages?: number;
+  totalRecipes?: number;
 }
 
 export default function RecipesPage() {
@@ -58,21 +60,29 @@ export default function RecipesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    initialCategory ? [initialCategory] : []
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Fetch recipes
   const fetchRecipes = async (page = 1) => {
     try {
       setLoading(true);
+      // Get current state values to ensure we're using the latest values
+      const currentSearchQuery = searchQuery;
+      const currentCategories = selectedCategories;
+
       let url = `/api/recipes?page=${page}&limit=${pagination.limit}`;
 
-      if (searchQuery) {
-        url += `&search=${encodeURIComponent(searchQuery)}`;
+      if (currentSearchQuery) {
+        url += `&search=${encodeURIComponent(currentSearchQuery)}`;
       }
 
-      if (selectedCategory) {
-        url += `&category=${encodeURIComponent(selectedCategory)}`;
+      if (currentCategories.length > 0) {
+        currentCategories.forEach(category => {
+          url += `&categories=${encodeURIComponent(category)}`;
+        });
       }
 
       const response = await fetch(url);
@@ -113,9 +123,37 @@ export default function RecipesPage() {
     }
   };
 
+  // Initial data fetch
   useEffect(() => {
+    // Fetch categories
     fetchCategories();
-    fetchRecipes();
+
+    // Fetch all recipes on initial load
+    const fetchInitialRecipes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/recipes?page=1&limit=${pagination.limit}`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch recipes');
+        }
+
+        const data = await response.json();
+        setRecipes(data.recipes || []);
+        setPagination({
+          total: data.pagination?.total || 0,
+          page: data.pagination?.page || 1,
+          limit: pagination.limit,
+          pages: data.pagination?.pages || 0,
+        });
+      } catch (err) {
+        console.error('Error fetching initial recipes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialRecipes();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -124,8 +162,16 @@ export default function RecipesPage() {
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId === selectedCategory ? '' : categoryId);
-    fetchRecipes(1);
+    setSelectedCategories(prev => {
+      // If category is already selected, remove it
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      }
+      // Otherwise add it to the selection
+      else {
+        return [...prev, categoryId];
+      }
+    });
   };
 
   const handlePageChange = (page: number) => {
@@ -134,8 +180,12 @@ export default function RecipesPage() {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setSelectedCategory('');
-    fetchRecipes(1);
+    setSelectedCategories([]);
+
+    // Wait for state updates to complete
+    setTimeout(() => {
+      fetchRecipes(1);
+    }, 0);
   };
 
   // Mock data for initial display
@@ -221,7 +271,7 @@ export default function RecipesPage() {
         <div className="md:hidden w-full mb-4">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center justify-between w-full px-4 py-2 bg-gray-100 rounded-md"
+            className="flex items-center justify-between w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-md"
           >
             <span className="font-medium">Filters</span>
             {isFilterOpen ? <FaTimes /> : <FaFilter />}
@@ -230,7 +280,7 @@ export default function RecipesPage() {
 
         {/* Sidebar Filters */}
         <motion.div
-          className={`w-full md:w-64 bg-white p-4 rounded-lg shadow-sm ${isFilterOpen ? 'block' : 'hidden'} md:block`}
+          className={`w-full md:w-64 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm ${isFilterOpen ? 'block' : 'hidden'} md:block`}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
@@ -245,13 +295,13 @@ export default function RecipesPage() {
                   <input
                     type="checkbox"
                     id={`category-${category._id}`}
-                    checked={selectedCategory === category._id}
+                    checked={selectedCategories.includes(category._id)}
                     onChange={() => handleCategoryChange(category._id)}
                     className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
                   />
                   <label
                     htmlFor={`category-${category._id}`}
-                    className="ml-2 text-gray-700 cursor-pointer"
+                    className="ml-2 text-gray-700 dark:text-gray-300 cursor-pointer"
                   >
                     {category.name}
                   </label>
@@ -260,7 +310,16 @@ export default function RecipesPage() {
             </div>
           </div>
 
-          {(searchQuery || selectedCategory) && (
+          {/* Apply Filters Button */}
+          <button
+            onClick={() => fetchRecipes(1)}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md mb-4"
+          >
+            Apply Filters
+          </button>
+
+          {/* Clear Filters Button */}
+          {(searchQuery || selectedCategories.length > 0) && (
             <button
               onClick={clearFilters}
               className="text-sm text-orange-500 hover:text-orange-600 flex items-center"
@@ -281,7 +340,7 @@ export default function RecipesPage() {
                   placeholder="Search recipes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
@@ -292,11 +351,29 @@ export default function RecipesPage() {
           </div>
 
           {/* Recipes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayRecipes.map((recipe) => (
-              <RecipeCard key={recipe._id} recipe={recipe} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayRecipes.length > 0 ? (
+                displayRecipes.map((recipe) => (
+                  <RecipeCard key={recipe._id} recipe={recipe} />
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-12">
+                  <p className="text-lg text-gray-600 dark:text-gray-400">No recipes found matching your criteria.</p>
+                  <button
+                    onClick={clearFilters}
+                    className="mt-4 text-orange-500 hover:text-orange-600"
+                  >
+                    Clear filters and show all recipes
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Pagination */}
           {pagination.pages > 1 && (

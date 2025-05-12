@@ -11,7 +11,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { id } = params;
+    const id = params.id;
 
     if (!session) {
       return NextResponse.json(
@@ -56,7 +56,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { id } = params;
+    const id = params.id;
 
     if (!session) {
       return NextResponse.json(

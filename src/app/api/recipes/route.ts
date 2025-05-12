@@ -8,7 +8,7 @@ import { handler as authOptions } from '../auth/[...nextauth]/route';
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const category = url.searchParams.get('category');
+    const categories = url.searchParams.getAll('categories');
     const search = url.searchParams.get('search');
     const limit = parseInt(url.searchParams.get('limit') || '10');
     const page = parseInt(url.searchParams.get('page') || '1');
@@ -18,8 +18,28 @@ export async function GET(req: NextRequest) {
 
     let query: any = {};
 
-    if (category) {
-      query.categories = category;
+    if (categories && categories.length > 0) {
+      try {
+        // Convert string IDs to ObjectId if they are valid MongoDB ObjectIds
+        const mongoose = require('mongoose');
+        const validObjectIds = categories.filter(id => {
+          try {
+            return mongoose.Types.ObjectId.isValid(id);
+          } catch (e) {
+            return false;
+          }
+        });
+
+        if (validObjectIds.length > 0) {
+          // Use $in operator to match any category in the array
+          query.categories = { $in: validObjectIds };
+          console.log('Filtering by categories:', validObjectIds);
+        }
+      } catch (error) {
+        console.error('Error processing category filters:', error);
+      }
+    } else {
+      console.log('No category filters applied');
     }
 
     if (search) {

@@ -65,14 +65,14 @@ export default function ProfilePage() {
 
       try {
         setLoading(true);
-        
+
         // Fetch user profile
         const profileResponse = await fetch(`/api/users/${session.user.id}`);
-        
+
         if (!profileResponse.ok) {
           throw new Error('Failed to fetch user profile');
         }
-        
+
         const profileData = await profileResponse.json();
         setProfile(profileData);
         setFormData({
@@ -80,14 +80,14 @@ export default function ProfilePage() {
           bio: profileData.bio || '',
           image: profileData.image || '',
         });
-        
+
         // Fetch user recipes
         const recipesResponse = await fetch(`/api/recipes?author=${session.user.id}`);
-        
+
         if (!recipesResponse.ok) {
           throw new Error('Failed to fetch user recipes');
         }
-        
+
         const recipesData = await recipesResponse.json();
         setUserRecipes(recipesData.recipes || []);
       } catch (err) {
@@ -110,12 +110,12 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!session?.user.id) return;
-    
+
     try {
       setSaving(true);
-      
+
       const response = await fetch(`/api/users/${session.user.id}`, {
         method: 'PUT',
         headers: {
@@ -123,11 +123,11 @@ export default function ProfilePage() {
         },
         body: JSON.stringify(formData),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
-      
+
       const updatedProfile = await response.json();
       setProfile(updatedProfile);
       setIsEditing(false);
@@ -170,8 +170,19 @@ export default function ProfilePage() {
     },
   ];
 
+  // Mock profile for initial display
+  const mockProfile: UserProfile = {
+    _id: session?.user.id || '0',
+    name: session?.user.name || 'User',
+    email: session?.user.email || 'user@example.com',
+    image: session?.user.image || '/images/default-avatar.svg',
+    bio: '',
+    favorites: [],
+  };
+
   // Use mock data if no data is loaded yet
   const displayRecipes = userRecipes.length > 0 ? userRecipes : mockRecipes;
+  const displayProfile = profile || mockProfile;
 
   if (status === 'loading' || loading) {
     return (
@@ -220,7 +231,7 @@ export default function ProfilePage() {
                       placeholder="Enter image URL"
                     />
                   </div>
-                  
+
                   {formData.image && (
                     <div className="relative h-48 w-48 mx-auto rounded-full overflow-hidden border-4 border-white shadow-md">
                       <Image
@@ -232,7 +243,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="md:w-2/3">
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -246,7 +257,7 @@ export default function ProfilePage() {
                       placeholder="Your name"
                     />
                   </div>
-                  
+
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Email
@@ -261,7 +272,7 @@ export default function ProfilePage() {
                       Email cannot be changed
                     </p>
                   </div>
-                  
+
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Bio
@@ -277,7 +288,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-3">
                 <Button
                   type="button"
@@ -300,8 +311,8 @@ export default function ProfilePage() {
               <div className="md:w-1/3 flex flex-col items-center">
                 <div className="relative h-48 w-48 rounded-full overflow-hidden border-4 border-white shadow-md mb-4">
                   <Image
-                    src={profile?.image || session?.user.image || '/images/default-avatar.png'}
-                    alt={profile?.name || session?.user.name || 'User'}
+                    src={displayProfile.image || '/default-avatar.svg'}
+                    alt={displayProfile.name || 'User'}
                     fill
                     className="object-cover"
                   />
@@ -315,21 +326,21 @@ export default function ProfilePage() {
                   <span>Edit Profile</span>
                 </Button>
               </div>
-              
+
               <div className="md:w-2/3">
                 <h1 className="text-2xl font-bold mb-2">
-                  {profile?.name || session?.user.name}
+                  {displayProfile.name}
                 </h1>
-                
+
                 <div className="flex items-center text-gray-600 mb-4">
                   <FaEnvelope className="mr-2" />
-                  <span>{session?.user.email}</span>
+                  <span>{displayProfile.email}</span>
                 </div>
-                
-                {profile?.bio ? (
+
+                {displayProfile.bio ? (
                   <div className="mb-4">
                     <h2 className="text-lg font-medium mb-2">About</h2>
-                    <p className="text-gray-700">{profile.bio}</p>
+                    <p className="text-gray-700">{displayProfile.bio}</p>
                   </div>
                 ) : (
                   <div className="mb-4 p-4 bg-gray-50 rounded-md">
@@ -338,16 +349,16 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 )}
-                
+
                 <div className="flex flex-wrap gap-4">
                   <div className="bg-gray-100 px-4 py-2 rounded-md">
                     <p className="text-sm text-gray-500">Recipes</p>
                     <p className="text-xl font-bold">{displayRecipes.length}</p>
                   </div>
-                  
+
                   <div className="bg-gray-100 px-4 py-2 rounded-md">
                     <p className="text-sm text-gray-500">Favorites</p>
-                    <p className="text-xl font-bold">{profile?.favorites?.length || 0}</p>
+                    <p className="text-xl font-bold">{displayProfile.favorites?.length || 0}</p>
                   </div>
                 </div>
               </div>
@@ -393,7 +404,7 @@ export default function ProfilePage() {
                 </Button>
               </Link>
             </div>
-            
+
             {displayRecipes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayRecipes.map((recipe, index) => (
@@ -425,10 +436,10 @@ export default function ProfilePage() {
         {activeTab === 'favorites' && (
           <div>
             <h2 className="text-2xl font-bold mb-6">My Favorite Recipes</h2>
-            
-            {profile?.favorites && profile.favorites.length > 0 ? (
+
+            {displayProfile.favorites && displayProfile.favorites.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {profile.favorites.map((recipe, index) => (
+                {displayProfile.favorites.map((recipe, index) => (
                   <motion.div
                     key={recipe._id}
                     initial={{ opacity: 0, y: 20 }}
