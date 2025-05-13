@@ -189,7 +189,7 @@ export default function ProfilePage() {
     _id: session?.user.id || '0',
     name: session?.user.name || 'User',
     email: session?.user.email || 'user@example.com',
-    image: session?.user.image || '/default-avatar.svg',
+    image: session?.user.image || '/images/default-avatar.png',
     bio: '',
     favorites: [],
   };
@@ -325,7 +325,7 @@ export default function ProfilePage() {
               <div className="md:w-1/3 flex flex-col items-center">
                 <div className="relative h-48 w-48 rounded-full overflow-hidden border-4 border-white shadow-md mb-4">
                   <Image
-                    src={displayProfile.image || '/default-avatar.svg'}
+                    src={displayProfile.image || '/images/default-avatar.png'}
                     alt={displayProfile.name || 'User'}
                     fill
                     className="object-cover"

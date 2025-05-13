@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import RecipeCard from '../../components/recipes/RecipeCard';
 import Button from '../../components/ui/Button';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { useLoading } from '../../context/LoadingContext';
 
 interface Recipe {
   _id: string;
@@ -48,6 +50,7 @@ export default function RecipesPage() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || '';
+  const { startLoading, stopLoading } = useLoading();
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -66,9 +69,11 @@ export default function RecipesPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Fetch recipes
-  const fetchRecipes = async (page = 1) => {
+  const fetchRecipes = useCallback(async (page = 1) => {
     try {
       setLoading(true);
+      startLoading(); // Start global loading animation
+
       // Get current state values to ensure we're using the latest values
       const currentSearchQuery = searchQuery;
       const currentCategories = selectedCategories;
@@ -80,11 +85,15 @@ export default function RecipesPage() {
       }
 
       if (currentCategories.length > 0) {
+        console.log('Applying category filters:', currentCategories);
         currentCategories.forEach(category => {
           url += `&categories=${encodeURIComponent(category)}`;
         });
+      } else {
+        console.log('No category filters applied');
       }
 
+      console.log('Fetching recipes from:', url);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -92,6 +101,7 @@ export default function RecipesPage() {
       }
 
       const data = await response.json();
+      console.log('Recipes fetched:', data.recipes?.length || 0);
       setRecipes(data.recipes || []);
       setPagination(data.pagination || {
         total: 0,
@@ -104,12 +114,15 @@ export default function RecipesPage() {
       console.error('Error fetching recipes:', err);
     } finally {
       setLoading(false);
+      stopLoading(); // Stop global loading animation
     }
-  };
+  }, [searchQuery, selectedCategories, pagination.limit, startLoading, stopLoading]);
 
   // Fetch categories
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
+      startLoading(); // Start global loading animation
+
       const response = await fetch('/api/categories');
 
       if (!response.ok) {
@@ -117,11 +130,14 @@ export default function RecipesPage() {
       }
 
       const data = await response.json();
+      console.log('Categories fetched:', data.categories?.length || 0);
       setCategories(data.categories || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
+    } finally {
+      stopLoading(); // Stop global loading animation
     }
-  };
+  }, [startLoading, stopLoading]);
 
   // Initial data fetch
   useEffect(() => {
@@ -132,6 +148,8 @@ export default function RecipesPage() {
     const fetchInitialRecipes = async () => {
       try {
         setLoading(true);
+        startLoading(); // Start global loading animation
+
         const response = await fetch(`/api/recipes?page=1&limit=${pagination.limit}`);
 
         if (!response.ok) {
@@ -150,10 +168,12 @@ export default function RecipesPage() {
         console.error('Error fetching initial recipes:', err);
       } finally {
         setLoading(false);
+        stopLoading(); // Stop global loading animation
       }
     };
 
     fetchInitialRecipes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -162,14 +182,22 @@ export default function RecipesPage() {
   };
 
   const handleCategoryChange = (categoryId: string) => {
+    console.log('Category selected/deselected:', categoryId);
+
     setSelectedCategories(prev => {
       // If category is already selected, remove it
       if (prev.includes(categoryId)) {
-        return prev.filter(id => id !== categoryId);
+        console.log('Removing category from selection:', categoryId);
+        const newSelection = prev.filter(id => id !== categoryId);
+        console.log('New selection after removal:', newSelection);
+        return newSelection;
       }
       // Otherwise add it to the selection
       else {
-        return [...prev, categoryId];
+        console.log('Adding category to selection:', categoryId);
+        const newSelection = [...prev, categoryId];
+        console.log('New selection after addition:', newSelection);
+        return newSelection;
       }
     });
 
@@ -486,7 +514,10 @@ export default function RecipesPage() {
 
           {/* Apply Filters Button */}
           <button
-            onClick={() => fetchRecipes(1)}
+            onClick={() => {
+              console.log('Apply Filters clicked with categories:', selectedCategories);
+              fetchRecipes(1);
+            }}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md mb-4 flex items-center justify-center"
           >
             <FaFilter className="mr-2" />
@@ -528,7 +559,7 @@ export default function RecipesPage() {
           {/* Recipes Grid */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+              <LoadingIndicator size="medium" text="Finding delicious recipes..." />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

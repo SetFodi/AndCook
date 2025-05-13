@@ -38,7 +38,7 @@ export const handler = NextAuth({
           id: user._id.toString(),
           name: user.name,
           email: user.email,
-          image: user.image,
+          image: user.image || '/images/default-avatar.png',
           role: user.role || 'user',
         };
       },
@@ -59,7 +59,8 @@ export const handler = NextAuth({
         session.user = {
           ...session.user,
           id: token.id as string,
-          role: token.role as string || 'user'
+          role: token.role as string || 'user',
+          image: session.user.image || '/images/default-avatar.png'
         };
         console.log("Session callback - Adding user ID and role to session:", token.id, token.role);
         console.log("Updated session user:", session.user);

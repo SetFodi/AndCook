@@ -53,6 +53,8 @@ const RecipeSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
       },
+      userName: String,
+      userImage: String,
       rating: {
         type: Number,
         min: 1,

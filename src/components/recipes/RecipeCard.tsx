@@ -64,7 +64,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <div className="flex items-center mt-2">
             <div className="relative h-8 w-8 rounded-full overflow-hidden">
               <Image
-                src={recipe.author.image || '/default-avatar.svg'}
+                src={recipe.author.image || '/images/default-avatar.png'}
                 alt={recipe.author.name}
                 fill
                 className="object-cover"

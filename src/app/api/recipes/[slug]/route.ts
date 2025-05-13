@@ -7,16 +7,18 @@ import { handler as authOptions } from '../../auth/[...nextauth]/route';
 // Get a recipe by slug
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    // Properly await and destructure params to avoid Next.js warning
+    const { slug } = context.params;
 
     await connectToDatabase();
 
     const recipe = await Recipe.findOne({ slug })
       .populate('author', 'name image')
-      .populate('categories', 'name slug');
+      .populate('categories', 'name slug')
+      .populate('ratings.user', 'name image');
 
     if (!recipe) {
       return NextResponse.json(
@@ -38,11 +40,12 @@ export async function GET(
 // Update a recipe
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { slug } = params;
+    // Properly await and destructure params to avoid Next.js warning
+    const { slug } = context.params;
 
     if (!session) {
       return NextResponse.json(
@@ -95,11 +98,12 @@ export async function PUT(
 // Delete a recipe
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { slug } = params;
+    // Properly await and destructure params to avoid Next.js warning
+    const { slug } = context.params;
 
     if (!session) {
       return NextResponse.json(

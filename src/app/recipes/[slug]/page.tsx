@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { FaClock, FaUtensils, FaStar, FaUser, FaPrint, FaShare, FaBookmark, FaEdit, FaTrash } from 'react-icons/fa';
 import Button from '../../../components/ui/Button';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useLoading } from '../../../context/LoadingContext';
 
 interface Recipe {
   _id: string;
@@ -56,6 +58,7 @@ export default function RecipeDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { startLoading, stopLoading } = useLoading();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -63,15 +66,87 @@ export default function RecipeDetailPage() {
   const [comment, setComment] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingReview, setEditingReview] = useState(false);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [userReviewId, setUserReviewId] = useState<number | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [savingToFavorites, setSavingToFavorites] = useState(false);
 
   // Get the slug from params safely
   const slug = typeof params?.slug === 'string' ? params.slug : Array.isArray(params?.slug) ? params.slug[0] : '';
+
+  // Check if recipe is in user's favorites
+  const checkFavoriteStatus = async (recipeId: string) => {
+    if (!session) return;
+
+    try {
+      const response = await fetch(`/api/user/favorites/check?recipeId=${recipeId}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsFavorite(data.isFavorite);
+      }
+    } catch (err) {
+      console.error('Error checking favorite status:', err);
+    }
+  };
+
+  // Toggle favorite status
+  const handleToggleFavorite = async () => {
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (!recipe) return;
+
+    try {
+      setSavingToFavorites(true);
+      startLoading(); // Start global loading animation
+
+      console.log('Saving recipe to favorites:', recipe._id);
+
+      const response = await fetch('/api/user/favorites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipeId: recipe._id,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Response from favorites API:', data);
+
+      if (response.ok) {
+        setIsFavorite(data.isFavorite);
+
+        // Show a toast or notification
+        if (data.isFavorite) {
+          alert('Recipe saved to your favorites!');
+        } else {
+          alert('Recipe removed from your favorites.');
+        }
+      } else {
+        alert('Error saving recipe: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error toggling favorite status:', err);
+      alert('Error saving recipe. Please try again.');
+    } finally {
+      setSavingToFavorites(false);
+      stopLoading(); // Stop global loading animation
+    }
+  };
 
   // Fetch recipe
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
         setLoading(true);
+        startLoading(); // Start global loading animation
+
         const response = await fetch(`/api/recipes/${slug}`);
 
         if (!response.ok) {
@@ -80,18 +155,46 @@ export default function RecipeDetailPage() {
 
         const data = await response.json();
         setRecipe(data);
+
+        // Check if the recipe is in user's favorites
+        if (session && data._id) {
+          await checkFavoriteStatus(data._id);
+        }
+
+        // Check if the user has already reviewed this recipe
+        if (session && session.user && data.ratings) {
+          const userReview = data.ratings.findIndex((rating: any) =>
+            rating.user && session.user && session.user.id &&
+            rating.user === session.user.id
+          );
+
+          if (userReview !== -1) {
+            setUserHasReviewed(true);
+            setUserReviewId(userReview);
+            // Pre-fill the form with existing review data for editing
+            setUserRating(data.ratings[userReview].rating);
+            setComment(data.ratings[userReview].comment || '');
+            setEditingReview(false); // Initially not in editing mode
+          } else {
+            setUserHasReviewed(false);
+            setUserReviewId(null);
+            setUserRating(0);
+            setComment('');
+          }
+        }
       } catch (err) {
         setError('Error loading recipe. Please try again later.');
         console.error('Error fetching recipe:', err);
       } finally {
         setLoading(false);
+        stopLoading(); // Stop global loading animation
       }
     };
 
     if (slug) {
       fetchRecipe();
     }
-  }, [slug]);
+  }, [slug, startLoading, stopLoading, session]);
 
   // Submit rating
   const handleRatingSubmit = async (e: React.FormEvent) => {
@@ -108,6 +211,7 @@ export default function RecipeDetailPage() {
 
     try {
       setSubmittingRating(true);
+      startLoading(); // Start global loading animation
 
       const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}/rate`, {
         method: 'POST',
@@ -129,13 +233,28 @@ export default function RecipeDetailPage() {
       const updatedRecipe = await recipeResponse.json();
       setRecipe(updatedRecipe);
 
-      // Reset form
-      setUserRating(0);
-      setComment('');
+      // Update user review state
+      if (!userHasReviewed) {
+        // Find the user's review in the updated recipe
+        const userReviewIndex = updatedRecipe.ratings.findIndex(
+          (r: any) => r.user && session.user && session.user.id &&
+          r.user === session.user.id
+        );
+
+        if (userReviewIndex !== -1) {
+          setUserHasReviewed(true);
+          setUserReviewId(userReviewIndex);
+          setEditingReview(false);
+        }
+      } else {
+        // Just exit edit mode if already reviewed
+        setEditingReview(false);
+      }
     } catch (err) {
       console.error('Error submitting rating:', err);
     } finally {
       setSubmittingRating(false);
+      stopLoading(); // Stop global loading animation
     }
   };
 
@@ -146,6 +265,8 @@ export default function RecipeDetailPage() {
     }
 
     try {
+      startLoading(); // Start global loading animation
+
       const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}`, {
         method: 'DELETE',
       });
@@ -157,6 +278,76 @@ export default function RecipeDetailPage() {
       router.push('/recipes');
     } catch (err) {
       console.error('Error deleting recipe:', err);
+    } finally {
+      stopLoading(); // Stop global loading animation
+    }
+  };
+
+  // Start editing review
+  const handleEditReview = () => {
+    if (!session || userReviewId === null || !recipe) return;
+
+    setEditingReview(true);
+
+    // Pre-fill form with existing review data
+    const userReview = recipe.ratings[userReviewId];
+    if (userReview) {
+      setUserRating(userReview.rating || 0);
+      setComment(userReview.comment || '');
+    }
+  };
+
+  // Delete review
+  const handleDeleteReview = async () => {
+    if (!session || userReviewId === null) return;
+
+    try {
+      startLoading();
+
+      const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}/rate`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete review');
+      }
+
+      // Refresh recipe data
+      const recipeResponse = await fetch(`/api/recipes/${encodeURIComponent(slug)}`);
+      const updatedRecipe = await recipeResponse.json();
+      setRecipe(updatedRecipe);
+
+      // Reset states
+      setUserHasReviewed(false);
+      setUserReviewId(null);
+      setUserRating(0);
+      setComment('');
+      setEditingReview(false);
+
+    } catch (err) {
+      console.error('Error deleting review:', err);
+    } finally {
+      stopLoading();
+    }
+  };
+
+  // Cancel editing review
+  const handleCancelEdit = () => {
+    setEditingReview(false);
+
+    // Reset form to original review data if user has reviewed
+    if (userHasReviewed && userReviewId !== null && recipe) {
+      const userReview = recipe.ratings[userReviewId];
+      if (userReview) {
+        setUserRating(userReview.rating || 0);
+        setComment(userReview.comment || '');
+      }
+    } else {
+      setUserRating(0);
+      setComment('');
     }
   };
 
@@ -229,10 +420,7 @@ export default function RecipeDetailPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12 flex justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 w-32 bg-gray-200 rounded"></div>
-        </div>
+        <LoadingIndicator size="large" text="Preparing your delicious recipe..." />
       </div>
     );
   }
@@ -283,7 +471,7 @@ export default function RecipeDetailPage() {
         <div className="flex items-center mb-6">
           <div className="relative h-10 w-10 rounded-full overflow-hidden">
             <Image
-              src={displayRecipe.author.image || '/default-avatar.svg'}
+              src={displayRecipe.author.image || '/images/default-avatar.png'}
               alt={displayRecipe.author.name}
               fill
               className="object-cover"
@@ -337,19 +525,26 @@ export default function RecipeDetailPage() {
             <p className="text-gray-700 mb-6">{displayRecipe.description}</p>
 
             <div className="flex flex-col gap-3">
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                <FaPrint />
-                <span>Print Recipe</span>
-              </button>
-
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                <FaShare />
-                <span>Share Recipe</span>
-              </button>
-
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                <FaBookmark />
-                <span>Save Recipe</span>
+              <button
+                onClick={handleToggleFavorite}
+                disabled={savingToFavorites}
+                className={`flex items-center justify-center gap-2 w-full py-2 ${
+                  isFavorite
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-orange-500 hover:bg-orange-600'
+                } text-white rounded-md transition-colors`}
+              >
+                {savingToFavorites ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaBookmark />
+                    <span>{isFavorite ? 'Saved to Profile' : 'Save Recipe'}</span>
+                  </>
+                )}
               </button>
 
               {session && session.user.id === displayRecipe.author._id && (
@@ -442,57 +637,153 @@ export default function RecipeDetailPage() {
       >
         <h2 className="text-xl font-bold mb-6">Ratings & Reviews</h2>
 
-        {/* Add Rating Form */}
+        {/* Add/Edit Rating Form */}
         <div className="mb-8 border-b pb-8">
-          <h3 className="text-lg font-medium mb-4">Add Your Review</h3>
-
           {session ? (
-            <form onSubmit={handleRatingSubmit}>
-              <div className="mb-4">
-                <p className="mb-2">Your Rating</p>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
+            userHasReviewed ? (
+              // User has already reviewed - show their review with edit/delete options
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium">Your Review</h3>
+                  <div className="flex gap-2">
                     <button
-                      key={star}
-                      type="button"
-                      onClick={() => setUserRating(star)}
-                      className="text-2xl"
+                      onClick={handleEditReview}
+                      className="flex items-center gap-1 text-orange-500 hover:text-orange-600"
                     >
-                      <FaStar
-                        className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
-                      />
+                      <FaEdit /> Edit
                     </button>
-                  ))}
+                    <button
+                      onClick={handleDeleteReview}
+                      className="flex items-center gap-1 text-red-500 hover:text-red-600"
+                    >
+                      <FaTrash /> Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-4">
-                <label htmlFor="comment" className="block mb-2">
-                  Your Comment
-                </label>
-                <textarea
-                  id="comment"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  rows={4}
-                ></textarea>
-              </div>
+                {editingReview ? (
+                  // Edit form
+                  <form onSubmit={handleRatingSubmit}>
+                    <div className="mb-4">
+                      <p className="mb-2">Your Rating</p>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setUserRating(star)}
+                            className="text-2xl"
+                          >
+                            <FaStar
+                              className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={submittingRating || userRating === 0}
-              >
-                {submittingRating ? 'Submitting...' : 'Submit Review'}
-              </Button>
-            </form>
+                    <div className="mb-4">
+                      <label htmlFor="comment" className="block mb-2">
+                        Your Comment
+                      </label>
+                      <textarea
+                        id="comment"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        rows={4}
+                      ></textarea>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={submittingRating || userRating === 0}
+                      >
+                        {submittingRating ? 'Submitting...' : 'Update Review'}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  // Display review
+                  <div className="bg-orange-50 p-4 rounded-md">
+                    <div className="flex mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <FaStar
+                          key={star}
+                          className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-gray-700">{comment || 'No comment provided'}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // User has not reviewed yet - show the form
+              <div>
+                <h3 className="text-lg font-medium mb-4">Add Your Review</h3>
+                <form onSubmit={handleRatingSubmit}>
+                  <div className="mb-4">
+                    <p className="mb-2">Your Rating</p>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setUserRating(star)}
+                          className="text-2xl"
+                        >
+                          <FaStar
+                            className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label htmlFor="comment" className="block mb-2">
+                      Your Comment
+                    </label>
+                    <textarea
+                      id="comment"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      rows={4}
+                    ></textarea>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={submittingRating || userRating === 0}
+                  >
+                    {submittingRating ? 'Submitting...' : 'Submit Review'}
+                  </Button>
+                </form>
+              </div>
+            )
           ) : (
-            <div className="bg-gray-50 p-4 rounded-md">
-              <p className="mb-2">Please sign in to leave a review.</p>
-              <Link href="/auth/signin">
-                <Button variant="primary">Sign In</Button>
-              </Link>
+            // User is not signed in
+            <div>
+              <h3 className="text-lg font-medium mb-4">Add Your Review</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <p className="mb-2">Please sign in to leave a review.</p>
+                <Link href="/auth/signin">
+                  <Button variant="primary">Sign In</Button>
+                </Link>
+              </div>
             </div>
           )}
         </div>
@@ -510,14 +801,20 @@ export default function RecipeDetailPage() {
                   <div className="flex items-center mb-2">
                     <div className="relative h-10 w-10 rounded-full overflow-hidden">
                       <Image
-                        src={rating.user.image || '/images/default-avatar.png'}
-                        alt={rating.user.name}
+                        src={rating.userImage || '/images/default-avatar.png'}
+                        alt={rating.userName || 'User'}
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div className="ml-3">
-                      <p className="font-medium">{rating.user.name}</p>
+                      <p className="font-medium">
+                        {rating.userName
+                          ? (session && rating.user === session.user.id
+                              ? `${rating.userName} (You)`
+                              : rating.userName)
+                          : 'User'}
+                      </p>
                       <div className="flex items-center">
                         <div className="flex">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -528,12 +825,12 @@ export default function RecipeDetailPage() {
                           ))}
                         </div>
                         <span className="ml-2 text-sm text-gray-500">
-                          {new Date(rating.date).toLocaleDateString()}
+                          {rating.date ? new Date(rating.date).toLocaleDateString() : 'Unknown date'}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-700">{rating.comment}</p>
+                  <p className="text-gray-700">{rating.comment || 'No comment provided'}</p>
                 </div>
               ))}
             </div>

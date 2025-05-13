@@ -8,6 +8,8 @@ import { FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaUpload, FaLink, FaImage, FaS
 import Input from '../../../../../components/ui/Input';
 import Button from '../../../../../components/ui/Button';
 import Link from 'next/link';
+import LoadingIndicator from '../../../../../components/ui/LoadingIndicator';
+import { useLoading } from '../../../../../context/LoadingContext';
 
 interface Ingredient {
   name: string;
@@ -29,6 +31,7 @@ interface Category {
 export default function EditRecipePage({ params }: { params: { id: string } }) {
   // Get the ID safely without using React.use()
   const id = params?.id;
+  const { startLoading, stopLoading } = useLoading();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [recipe, setRecipe] = useState<any>(null);
@@ -78,6 +81,9 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
 
   const fetchRecipe = async () => {
     try {
+      setLoading(true);
+      startLoading(); // Start global loading animation
+
       const response = await fetch(`/api/recipes/by-id/${encodeURIComponent(id)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch recipe');
@@ -112,6 +118,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
       setError('Failed to load recipe. Please try again.');
     } finally {
       setLoading(false);
+      stopLoading(); // Stop global loading animation
     }
   };
 
@@ -349,6 +356,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
     try {
       setSubmitting(true);
       setError('');
+      startLoading(); // Start global loading animation
 
       // If using file upload and there's a file but it hasn't been uploaded yet
       if (imageUploadMethod === 'upload' && uploadedImage && !formData.mainImage) {
@@ -356,6 +364,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
           const uploadUrl = await handleFileUpload();
           if (!uploadUrl) {
             setSubmitting(false);
+            stopLoading(); // Stop global loading animation
             return;
           }
           // Update formData with the uploaded image URL
@@ -363,6 +372,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
         } catch (uploadErr) {
           setError('Failed to upload image. Please try again.');
           setSubmitting(false);
+          stopLoading(); // Stop global loading animation
           return;
         }
       }
@@ -402,6 +412,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
       console.error('Error updating recipe:', err);
     } finally {
       setSubmitting(false);
+      stopLoading(); // Stop global loading animation
     }
   };
 
@@ -411,10 +422,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
   if (status === 'loading' || loading) {
     return (
       <div className="container mx-auto px-4 py-12 flex justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 w-32 bg-gray-200 rounded"></div>
-        </div>
+        <LoadingIndicator size="large" text="Preparing your recipe for editing..." />
       </div>
     );
   }
