@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
-import { ThemeToggle } from '../ThemeProvider';
 
 const Header: React.FC = () => {
   const { data: session } = useSession();
@@ -38,7 +37,7 @@ const Header: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-md py-2'
+          ? 'bg-white/95 backdrop-blur-sm shadow-md py-2'
           : 'bg-transparent py-4'
       }`}
     >
@@ -57,25 +56,28 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="font-medium relative group"
-            >
-              <span className={`${isScrolled ? 'text-gray-800 dark:text-gray-100' : 'text-gray-800 dark:text-white'} group-hover:text-primary transition-colors duration-200`}>Home</span>
+            <Link href="/" className="font-medium relative group">
+              <span
+                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
+              >
+                Home
+              </span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link
-              href="/recipes"
-              className="font-medium relative group"
-            >
-              <span className={`${isScrolled ? 'text-gray-800 dark:text-gray-100' : 'text-gray-800 dark:text-white'} group-hover:text-primary transition-colors duration-200`}>Recipes</span>
+            <Link href="/recipes" className="font-medium relative group">
+              <span
+                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
+              >
+                Recipes
+              </span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
             </Link>
-            <Link
-              href="/categories"
-              className="font-medium relative group"
-            >
-              <span className={`${isScrolled ? 'text-gray-800 dark:text-gray-100' : 'text-gray-800 dark:text-white'} group-hover:text-primary transition-colors duration-200`}>Categories</span>
+            <Link href="/categories" className="font-medium relative group">
+              <span
+                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
+              >
+                Categories
+              </span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
             </Link>
           </nav>
@@ -90,7 +92,7 @@ const Header: React.FC = () => {
               placeholder="Search recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-2 px-4 pr-10 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm shadow-sm"
+              className="w-full py-2 px-4 pr-10 rounded-full border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm shadow-sm"
             />
             <button
               type="submit"
@@ -100,9 +102,8 @@ const Header: React.FC = () => {
             </button>
           </form>
 
-          {/* User Menu and Theme Toggle */}
+          {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
             {session ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2">
@@ -115,23 +116,23 @@ const Header: React.FC = () => {
                     />
                   </div>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100">
                   <div className="py-2">
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Profile
                     </Link>
                     <Link
                       href="/recipes/new"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Add Recipe
                     </Link>
                     <button
                       onClick={() => signOut()}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Sign Out
                     </button>
@@ -141,7 +142,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 href="/auth/signin"
-                className={`flex items-center space-x-1 ${isScrolled ? 'text-gray-800 dark:text-gray-200' : 'text-white'} px-4 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 hover:text-primary`}
+                className="flex items-center space-x-1 text-gray-800 px-4 py-2 rounded-lg hover:bg-primary/10 transition-all duration-300 border border-transparent hover:border-primary/30 hover:text-primary"
               >
                 <FaUser className="mr-2 transform group-hover:scale-110 transition-transform duration-300" />
                 <span>Sign In</span>
@@ -151,13 +152,9 @@ const Header: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className={`md:hidden p-2 rounded-full ${
-              isScrolled
-                ? 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100'
-                : 'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-800 dark:text-white'
-            } focus:outline-none transition-all duration-300 hover:scale-105`}
+            className="md:hidden p-2 rounded-full hover:bg-gray-100 text-gray-800 focus:outline-none transition-all duration-300 hover:scale-105"
             onClick={toggleMenu}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
           </button>
@@ -172,7 +169,7 @@ const Header: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 shadow-lg border-t border-gray-200 dark:border-gray-800"
+            className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200"
           >
             <div className="container mx-auto px-4 py-4">
               <form onSubmit={handleSearch} className="mb-6">
@@ -182,7 +179,7 @@ const Header: React.FC = () => {
                     placeholder="Search recipes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                   <button
                     type="submit"
@@ -193,35 +190,40 @@ const Header: React.FC = () => {
                 </div>
               </form>
               <div className="flex justify-between items-center mb-6">
-                <ThemeToggle />
               </div>
               <nav className="flex flex-col space-y-4">
                 <Link
                   href="/"
-                  className="text-gray-800 dark:text-gray-100 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">Home</span>
+                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                    Home
+                  </span>
                   <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
                 <Link
                   href="/recipes"
-                  className="text-gray-800 dark:text-gray-100 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">Recipes</span>
+                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                    Recipes
+                  </span>
                   <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
                 <Link
                   href="/categories"
-                  className="text-gray-800 dark:text-gray-100 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">Categories</span>
+                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                    Categories
+                  </span>
                   <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 my-2 pt-4">
+                <div className="border-t border-gray-200 my-2 pt-4">
                   {session ? (
                     <>
                       <div className="flex items-center space-x-3 mb-4">
@@ -234,24 +236,24 @@ const Header: React.FC = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-800 dark:text-gray-200">
+                          <p className="font-medium text-gray-800">
                             {session.user.name}
                           </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-sm text-gray-500">
                             {session.user.email}
                           </p>
                         </div>
                       </div>
                       <Link
                         href="/profile"
-                        className="text-gray-800 dark:text-gray-200 hover:text-primary py-2 block"
+                        className="text-gray-800 hover:text-primary py-2 block"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Profile
                       </Link>
                       <Link
                         href="/recipes/new"
-                        className="text-gray-800 dark:text-gray-200 hover:text-primary py-2 block"
+                        className="text-gray-800 hover:text-primary py-2 block"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Add Recipe
@@ -261,7 +263,7 @@ const Header: React.FC = () => {
                           signOut();
                           setIsMenuOpen(false);
                         }}
-                        className="text-left w-full text-gray-800 dark:text-gray-200 hover:text-primary py-2"
+                        className="text-left w-full text-gray-800 hover:text-primary py-2"
                       >
                         Sign Out
                       </button>

@@ -59,7 +59,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gray-50 dark:bg-gray-900">
+      <section className="py-24 bg-slate-100">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -71,10 +71,10 @@ export default function Home() {
             <span className="text-primary font-medium mb-2 block text-lg">
               Our Features
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900 dark:text-white">
+            <h2 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900">
               Why Choose AndCook?
             </h2>
-            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               Our platform offers everything you need to discover, create, and share amazing recipes.
             </p>
           </motion.div>
@@ -85,14 +85,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="bg-primary/10 dark:bg-primary/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-300 group-hover:scale-110">
+              <div className="bg-primary/10 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
                 <FaUtensils className="text-primary text-2xl group-hover:text-primary transition-colors duration-300" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-primary transition-colors duration-300">Diverse Recipes</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-primary transition-colors duration-300">Diverse Recipes</h3>
+              <p className="text-gray-700 leading-relaxed">
                 Explore thousands of recipes from different cuisines and dietary preferences.
               </p>
             </motion.div>
@@ -102,14 +102,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="bg-primary/10 dark:bg-primary/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-300 group-hover:scale-110">
+              <div className="bg-primary/10 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
                 <FaSearch className="text-primary text-2xl group-hover:text-primary transition-colors duration-300" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-primary transition-colors duration-300">Easy to Find</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-primary transition-colors duration-300">Easy to Find</h3>
+              <p className="text-gray-700 leading-relaxed">
                 Search by ingredients, categories, or dietary restrictions to find the perfect recipe.
               </p>
             </motion.div>
@@ -119,14 +119,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="bg-primary/10 dark:bg-primary/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-300 group-hover:scale-110">
+              <div className="bg-primary/10 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
                 <FaUserFriends className="text-primary text-2xl group-hover:text-primary transition-colors duration-300" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-primary transition-colors duration-300">Community</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-primary transition-colors duration-300">Community</h3>
+              <p className="text-gray-700 leading-relaxed">
                 Share your recipes, rate others, and connect with food enthusiasts around the world.
               </p>
             </motion.div>

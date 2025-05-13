@@ -299,7 +299,7 @@ export default function RecipeDetailPage() {
             <Link
               key={category._id}
               href={`/categories/${category.slug}`}
-              className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 transition-colors"
             >
               {category.name}
             </Link>
@@ -330,23 +330,23 @@ export default function RecipeDetailPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm"
+            className="bg-white p-6 rounded-xl shadow-sm"
           >
             <h2 className="text-xl font-bold mb-4">Description</h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-6">{displayRecipe.description}</p>
+            <p className="text-gray-700 mb-6">{displayRecipe.description}</p>
 
             <div className="flex flex-col gap-3">
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                 <FaPrint />
                 <span>Print Recipe</span>
               </button>
 
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                 <FaShare />
                 <span>Share Recipe</span>
               </button>
 
-              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <button className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                 <FaBookmark />
                 <span>Save Recipe</span>
               </button>
@@ -397,14 +397,14 @@ export default function RecipeDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm"
+          className="bg-white p-6 rounded-xl shadow-sm"
         >
           <h2 className="text-xl font-bold mb-4">Ingredients</h2>
           <ul className="space-y-3">
             {displayRecipe.ingredients.map((ingredient, index) => (
               <li key={index} className="flex items-start">
                 <div className="h-5 w-5 rounded-full border border-orange-500 flex-shrink-0 mt-0.5"></div>
-                <span className="ml-3 text-gray-700 dark:text-gray-300">
+                <span className="ml-3 text-gray-700">
                   {ingredient.quantity} {ingredient.unit} {ingredient.name}
                 </span>
               </li>
@@ -416,7 +416,7 @@ export default function RecipeDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm"
+          className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm"
         >
           <h2 className="text-xl font-bold mb-4">Instructions</h2>
           <ol className="space-y-6">
@@ -425,7 +425,7 @@ export default function RecipeDetailPage() {
                 <div className="h-8 w-8 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                   {instruction.step}
                 </div>
-                <p className="ml-4 text-gray-700 dark:text-gray-300">{instruction.description}</p>
+                <p className="ml-4 text-gray-700">{instruction.description}</p>
               </li>
             ))}
           </ol>
@@ -437,7 +437,7 @@ export default function RecipeDetailPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm mb-12"
+        className="bg-white p-6 rounded-xl shadow-sm mb-12"
       >
         <h2 className="text-xl font-bold mb-6">Ratings & Reviews</h2>
 
@@ -473,7 +473,7 @@ export default function RecipeDetailPage() {
                   id="comment"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   rows={4}
                 ></textarea>
               </div>
@@ -487,7 +487,7 @@ export default function RecipeDetailPage() {
               </Button>
             </form>
           ) : (
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+            <div className="bg-gray-50 p-4 rounded-md">
               <p className="mb-2">Please sign in to leave a review.</p>
               <Link href="/auth/signin">
                 <Button variant="primary">Sign In</Button>
@@ -532,12 +532,12 @@ export default function RecipeDetailPage() {
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300">{rating.comment}</p>
+                  <p className="text-gray-700">{rating.comment}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400">No reviews yet. Be the first to review this recipe!</p>
+            <p className="text-gray-500">No reviews yet. Be the first to review this recipe!</p>
           )}
         </div>
       </motion.div>

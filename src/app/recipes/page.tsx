@@ -271,7 +271,7 @@ export default function RecipesPage() {
         <div className="md:hidden w-full mb-4">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center justify-between w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-md"
+            className="flex items-center justify-between w-full px-4 py-2 bg-gray-100 rounded-md"
           >
             <span className="font-medium">Filters</span>
             {isFilterOpen ? <FaTimes /> : <FaFilter />}
@@ -280,7 +280,7 @@ export default function RecipesPage() {
 
         {/* Sidebar Filters */}
         <motion.div
-          className={`w-full md:w-64 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm ${isFilterOpen ? 'block' : 'hidden'} md:block`}
+          className={`w-full md:w-64 bg-white p-4 rounded-lg shadow-sm ${isFilterOpen ? 'block' : 'hidden'} md:block`}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
@@ -301,7 +301,7 @@ export default function RecipesPage() {
                   />
                   <label
                     htmlFor={`category-${category._id}`}
-                    className="ml-2 text-gray-700 dark:text-gray-300 cursor-pointer"
+                    className="ml-2 text-gray-700 cursor-pointer"
                   >
                     {category.name}
                   </label>
@@ -340,7 +340,7 @@ export default function RecipesPage() {
                   placeholder="Search recipes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
@@ -363,7 +363,7 @@ export default function RecipesPage() {
                 ))
               ) : (
                 <div className="col-span-3 text-center py-12">
-                  <p className="text-lg text-gray-600 dark:text-gray-400">No recipes found matching your criteria.</p>
+                  <p className="text-lg text-gray-600">No recipes found matching your criteria.</p>
                   <button
                     onClick={clearFilters}
                     className="mt-4 text-orange-500 hover:text-orange-600"
