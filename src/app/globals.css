@@ -2,11 +2,25 @@
 
 :root {
   --primary: #f97316;
-  --primary-hover: #ea580c;
+  --primary-light: #fdba74;
+  --primary-dark: #ea580c;
+  --primary-hover: #f85a05;
+  --accent: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
   --background: #ffffff;
   --foreground: #171717;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
+
+  /* Light mode text colors */
+  --text-primary: #171717;
+  --text-secondary: #374151; /* Darker for better contrast */
+  --text-tertiary: #4b5563; /* Darker for better contrast */
+  --text-inverse: #ffffff;
+
+  /* Simplified gray scale */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
@@ -21,21 +35,35 @@
 
 .dark {
   --primary: #f97316;
-  --primary-hover: #fb923c;
-  --background: #121212;
-  --foreground: #e5e5e5;
-  --card-bg: #1e1e1e;
-  --card-border: #2d2d2d;
-  --gray-50: #1a1a1a;
-  --gray-100: #2a2a2a;
-  --gray-200: #3a3a3a;
-  --gray-300: #4a4a4a;
-  --gray-400: #6a6a6a;
-  --gray-500: #8a8a8a;
-  --gray-600: #aaaaaa;
-  --gray-700: #cccccc;
-  --gray-800: #e0e0e0;
-  --gray-900: #f0f0f0;
+  --primary-light: #fb923c;
+  --primary-dark: #ea580c;
+  --primary-hover: #ff8534;
+  --accent: #38bdf8;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+
+  /* Dark mode text colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #cbd5e1;
+  --text-inverse: #0f172a;
+
+  /* Dark mode grays - keeping consistent with Tailwind's dark mode */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
 }
 
 @theme inline {
@@ -50,46 +78,77 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
 }
 
-/* Card styles */
-.bg-white, .bg-gray-50 {
-  background-color: var(--card-bg) !important;
-  border-color: var(--card-border) !important;
+/* Text colors */
+.text-primary {
+  color: var(--primary);
 }
 
-/* Text colors for light/dark mode */
-.text-gray-500 {
-  color: var(--gray-500) !important;
+.text-primary-light {
+  color: var(--primary-light);
 }
 
-.text-gray-600 {
-  color: var(--gray-600) !important;
+/* Background colors */
+.bg-primary {
+  background-color: var(--primary);
 }
 
-.text-gray-700 {
-  color: var(--gray-700) !important;
+.bg-primary-light {
+  background-color: var(--primary-light);
 }
 
-.text-gray-800 {
-  color: var(--gray-800) !important;
+.bg-primary-dark {
+  background-color: var(--primary-dark);
 }
 
-.text-gray-900 {
-  color: var(--gray-900) !important;
+/* Fix for Tailwind text variants */
+.text-primary-400 {
+  color: var(--primary-light);
 }
+
+.text-primary-600 {
+  color: var(--primary-dark);
+}
+
+.bg-primary-400 {
+  background-color: var(--primary-light);
+}
+
+.bg-primary-600 {
+  background-color: var(--primary-dark);
+}
+
+/* Text color classes */
+.text-default {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.text-inverse {
+  color: var(--text-inverse);
+}
+
+/* Card styles - let Tailwind handle these */
+/* These were causing conflicts with dark mode */
 
 /* Headings and text */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--foreground);
+  color: var(--text-primary);
+  line-height: 1.3;
 }
 
 p {
-  color: var(--gray-700);
-}
-
-.dark p {
-  color: var(--gray-400);
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
 }
 
 a {
@@ -100,6 +159,7 @@ a:hover {
   color: var(--primary-hover);
 }
 
+/* Rest of the CSS stays the same */
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

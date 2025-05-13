@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AndCook - Delicious Recipes",
   description: "Discover and share delicious recipes from around the world",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -27,16 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <NextAuthProvider>
           <ThemeProvider>
             <Header />
-            <main className="flex-grow pt-20">
-              {children}
-            </main>
+            <main className="flex-grow pt-16 md:pt-20">{children}</main>
             <Footer />
           </ThemeProvider>
         </NextAuthProvider>

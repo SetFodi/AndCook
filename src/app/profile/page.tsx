@@ -54,42 +54,48 @@ export default function ProfilePage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
+      console.log("User is not authenticated, redirecting to sign in");
       router.push('/auth/signin');
+    } else if (status === 'authenticated') {
+      console.log("User is authenticated:", session?.user);
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   // Fetch user profile and recipes
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!session?.user.id) return;
+      if (status !== 'authenticated') {
+        console.log("User not authenticated, skipping profile fetch");
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log("Fetching profile data");
 
-        // Fetch user profile
-        const profileResponse = await fetch(`/api/users/${session.user.id}`);
+        // Fetch user profile and recipes from the new API endpoint
+        const response = await fetch('/api/profile');
 
-        if (!profileResponse.ok) {
-          throw new Error('Failed to fetch user profile');
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Profile fetch error response:", errorData);
+          throw new Error(`Failed to fetch profile data: ${errorData.message || response.statusText}`);
         }
 
-        const profileData = await profileResponse.json();
-        setProfile(profileData);
+        const data = await response.json();
+        console.log("Profile data fetched successfully:", data);
+
+        // Set profile data
+        setProfile(data.profile);
         setFormData({
-          name: profileData.name,
-          bio: profileData.bio || '',
-          image: profileData.image || '',
+          name: data.profile.name,
+          bio: data.profile.bio || '',
+          image: data.profile.image || '',
         });
 
-        // Fetch user recipes
-        const recipesResponse = await fetch(`/api/recipes?author=${session.user.id}`);
-
-        if (!recipesResponse.ok) {
-          throw new Error('Failed to fetch user recipes');
-        }
-
-        const recipesData = await recipesResponse.json();
-        setUserRecipes(recipesData.recipes || []);
+        // Set recipes data
+        setUserRecipes(data.recipes || []);
       } catch (err) {
         setError('Error loading profile. Please try again later.');
         console.error('Error fetching user data:', err);
@@ -98,10 +104,14 @@ export default function ProfilePage() {
       }
     };
 
-    if (session?.user.id) {
+    // Only attempt to fetch data if we have a session and it's not loading
+    if (status === 'authenticated') {
       fetchUserData();
+    } else if (status === 'unauthenticated') {
+      // If user is not authenticated, stop loading
+      setLoading(false);
     }
-  }, [session]);
+  }, [status]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -111,12 +121,13 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!session?.user.id) return;
+    if (!session) return;
 
     try {
       setSaving(true);
+      console.log("Submitting profile update:", formData);
 
-      const response = await fetch(`/api/users/${session.user.id}`, {
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -125,10 +136,13 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        const errorData = await response.json();
+        console.error("Profile update error:", errorData);
+        throw new Error(`Failed to update profile: ${errorData.message || response.statusText}`);
       }
 
       const updatedProfile = await response.json();
+      console.log("Profile updated successfully:", updatedProfile);
       setProfile(updatedProfile);
       setIsEditing(false);
     } catch (err) {
@@ -175,7 +189,7 @@ export default function ProfilePage() {
     _id: session?.user.id || '0',
     name: session?.user.name || 'User',
     email: session?.user.email || 'user@example.com',
-    image: session?.user.image || '/images/default-avatar.svg',
+    image: session?.user.image || '/default-avatar.svg',
     bio: '',
     favorites: [],
   };

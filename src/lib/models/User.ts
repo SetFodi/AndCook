@@ -13,7 +13,8 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      // Only required for users created through registration
+      required: false,
     },
     image: {
       type: String,

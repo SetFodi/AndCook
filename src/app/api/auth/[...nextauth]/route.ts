@@ -47,12 +47,24 @@ export const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        console.log("JWT callback - Adding user ID to token:", user.id);
       }
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
+      if (token && session.user) {
+        // Ensure the user object has an id property
+        session.user = {
+          ...session.user,
+          id: token.id as string
+        };
+        console.log("Session callback - Adding user ID to session:", token.id);
+        console.log("Updated session user:", session.user);
+      } else {
+        console.log("Session callback - Warning: Unable to add user ID to session", {
+          hasToken: !!token,
+          hasSessionUser: !!session.user
+        });
       }
       return session;
     },

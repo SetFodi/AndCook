@@ -6,31 +6,31 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-8">
+    <footer className="bg-gray-900 dark:bg-gray-900 text-white pt-16 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-1">
-            <Link href="/" className="text-2xl font-bold text-orange-500">
+            <Link href="/" className="text-3xl font-bold text-primary hover:text-primary-dark transition-colors duration-300">
               AndCook
             </Link>
-            <p className="mt-4 text-gray-400">
+            <p className="mt-4 text-gray-100 dark:text-gray-100 leading-relaxed">
               Discover delicious recipes from around the world. Cook, share, and enjoy!
             </p>
-            <div className="flex space-x-4 mt-6">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <div className="flex space-x-5 mt-8">
+              <a href="#" className="text-gray-100 dark:text-gray-100 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Facebook">
                 <FaFacebook size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-gray-100 dark:text-gray-100 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Twitter">
                 <FaTwitter size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-gray-100 dark:text-gray-100 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Instagram">
                 <FaInstagram size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-gray-100 dark:text-gray-100 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Pinterest">
                 <FaPinterest size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="#" className="text-gray-100 dark:text-gray-100 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="YouTube">
                 <FaYoutube size={20} />
               </a>
             </div>
@@ -38,26 +38,30 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold mb-5 text-white dark:text-white">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                  Home
+                <Link href="/" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Home</span>
                 </Link>
               </li>
               <li>
-                <Link href="/recipes" className="text-gray-400 hover:text-white transition-colors">
-                  Recipes
+                <Link href="/recipes" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Recipes</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories" className="text-gray-400 hover:text-white transition-colors">
-                  Categories
+                <Link href="/categories" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Categories</span>
                 </Link>
               </li>
               <li>
-                <Link href="/profile" className="text-gray-400 hover:text-white transition-colors">
-                  My Profile
+                <Link href="/profile" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">My Profile</span>
                 </Link>
               </li>
             </ul>
@@ -65,31 +69,36 @@ const Footer: React.FC = () => {
 
           {/* Categories */}
           <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Categories</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold mb-5 text-white dark:text-white">Categories</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/categories/breakfast" className="text-gray-400 hover:text-white transition-colors">
-                  Breakfast
+                <Link href="/categories/breakfast" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Breakfast</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/lunch" className="text-gray-400 hover:text-white transition-colors">
-                  Lunch
+                <Link href="/categories/lunch" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Lunch</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/dinner" className="text-gray-400 hover:text-white transition-colors">
-                  Dinner
+                <Link href="/categories/dinner" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Dinner</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/desserts" className="text-gray-400 hover:text-white transition-colors">
-                  Desserts
+                <Link href="/categories/desserts" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Desserts</span>
                 </Link>
               </li>
               <li>
-                <Link href="/categories/vegetarian" className="text-gray-400 hover:text-white transition-colors">
-                  Vegetarian
+                <Link href="/categories/vegetarian" className="text-gray-100 dark:text-gray-100 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Vegetarian</span>
                 </Link>
               </li>
             </ul>
@@ -97,21 +106,21 @@ const Footer: React.FC = () => {
 
           {/* Contact */}
           <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <p className="text-gray-400 mb-2">
+            <h3 className="text-lg font-bold mb-5 text-white dark:text-white">Contact Us</h3>
+            <p className="text-gray-100 dark:text-gray-100 mb-4 leading-relaxed">
               Have questions or suggestions? We'd love to hear from you!
             </p>
             <Link
               href="/contact"
-              className="inline-block bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors mt-2"
+              className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:scale-105 transition-all duration-300 mt-2 font-medium shadow-lg hover:shadow-primary/30"
             >
               Contact Us
             </Link>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-400">
-          <p>© {currentYear} AndCook. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-100 dark:text-gray-100">
+          <p>© {currentYear} <span className="text-primary hover:text-primary-dark transition-colors duration-300">AndCook</span>. All rights reserved.</p>
         </div>
       </div>
     </footer>
