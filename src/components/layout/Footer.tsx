@@ -101,6 +101,12 @@ const Footer: React.FC = () => {
                   <span className="group-hover:pl-3 transition-all duration-300">Vegetarian</span>
                 </Link>
               </li>
+              <li>
+                <Link href="/categories/georgian" className="text-gray-600 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Georgian</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -112,7 +118,7 @@ const Footer: React.FC = () => {
             </p>
             <Link
               href="/contact"
-              className="inline-block bg-yellow-400 text-black px-6 py-3 rounded-lg hover:bg-primary-dark hover:scale-105 transition-all duration-300 mt-2 font-medium shadow-lg hover:shadow-primary/30"
+              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-primary-dark hover:scale-105 transition-all duration-300 mt-2 font-medium shadow-lg hover:shadow-primary/30"
             >
               Contact Us
             </Link>

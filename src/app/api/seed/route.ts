@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
     // Create categories
     const categoryMap = new Map();
 
+    // Add sample categories
     for (const categoryData of sampleCategories) {
       const category = new Category({
         name: categoryData.name,

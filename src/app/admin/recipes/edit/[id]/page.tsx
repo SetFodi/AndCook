@@ -1,17 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaUpload, FaLink, FaImage } from 'react-icons/fa';
-import Input from '../../../components/ui/Input';
-import Button from '../../../components/ui/Button';
-
-interface Category {
-  _id: string;
-  name: string;
-}
+import { FaPlus, FaTrash, FaArrowUp, FaArrowDown, FaUpload, FaLink, FaImage, FaSave } from 'react-icons/fa';
+import Input from '../../../../../components/ui/Input';
+import Button from '../../../../../components/ui/Button';
+import Link from 'next/link';
 
 interface Ingredient {
   name: string;
@@ -24,14 +20,23 @@ interface Instruction {
   description: string;
 }
 
-export default function NewRecipePage() {
+interface Category {
+  _id: string;
+  name: string;
+  slug?: string;
+}
+
+export default function EditRecipePage({ params }: { params: { id: string } }) {
+  // Unwrap params using React.use() to avoid warnings
+  const unwrappedParams = React.use(params as any);
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -43,12 +48,6 @@ export default function NewRecipePage() {
     categories: [] as string[],
   });
 
-  const [imageUploadMethod, setImageUploadMethod] = useState<'url' | 'upload'>('url');
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { name: '', quantity: '', unit: '' },
   ]);
@@ -57,53 +56,97 @@ export default function NewRecipePage() {
     { step: 1, description: '' },
   ]);
 
-  // Redirect if not authenticated
+  const [imageUploadMethod, setImageUploadMethod] = useState<'url' | 'upload'>('url');
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    // Check if user is authenticated and is an admin
+    if (status === 'authenticated') {
+      if (session?.user?.email !== 'lukafartenadze2004@gmail.com' && session?.user?.role !== 'admin') {
+        router.push('/');
+      } else {
+        fetchRecipe();
+        fetchCategories();
+      }
+    } else if (status === 'unauthenticated') {
       router.push('/auth/signin');
     }
-  }, [status, router]);
+  }, [status, session, router, unwrappedParams.id]);
 
-  // Fetch categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch categories');
-        }
-
-        const data = await response.json();
-        setCategories(data);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-      } finally {
-        setLoading(false);
+  const fetchRecipe = async () => {
+    try {
+      const response = await fetch(`/api/recipes/by-id/${unwrappedParams.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recipe');
       }
-    };
 
-    fetchCategories();
-  }, []);
+      const data = await response.json();
+      setRecipe(data.recipe);
+
+      // Populate form data
+      setFormData({
+        title: data.recipe.title || '',
+        description: data.recipe.description || '',
+        cookingTime: data.recipe.cookingTime?.toString() || '',
+        servings: data.recipe.servings?.toString() || '',
+        difficulty: data.recipe.difficulty || 'Medium',
+        mainImage: data.recipe.mainImage || '',
+        categories: data.recipe.categories?.map((cat: any) => cat._id) || [],
+      });
+
+      // Populate ingredients
+      if (data.recipe.ingredients && data.recipe.ingredients.length > 0) {
+        setIngredients(data.recipe.ingredients);
+      }
+
+      // Populate instructions
+      if (data.recipe.instructions && data.recipe.instructions.length > 0) {
+        setInstructions(data.recipe.instructions);
+      }
+
+    } catch (error) {
+      console.error('Error fetching recipe:', error);
+      setError('Failed to load recipe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+
+      const data = await response.json();
+      setCategories(data.categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
+    const categoryId = e.target.value;
 
-    if (checked) {
-      setFormData((prev) => ({
-        ...prev,
-        categories: [...prev.categories, value],
-      }));
+    if (e.target.checked) {
+      setFormData({
+        ...formData,
+        categories: [...formData.categories, categoryId],
+      });
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        categories: prev.categories.filter((cat) => cat !== value),
-      }));
+      setFormData({
+        ...formData,
+        categories: formData.categories.filter(id => id !== categoryId),
+      });
     }
   };
 
@@ -332,8 +375,8 @@ export default function NewRecipePage() {
         instructions,
       };
 
-      const response = await fetch('/api/recipes', {
-        method: 'POST',
+      const response = await fetch(`/api/recipes/by-id/${unwrappedParams.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -343,39 +386,27 @@ export default function NewRecipePage() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error response from server:', errorData);
-        throw new Error(errorData.message || 'Failed to create recipe');
+        throw new Error(errorData.message || 'Failed to update recipe');
       }
 
       const data = await response.json();
-      console.log('Recipe created successfully:', data);
+      console.log('Recipe updated successfully:', data);
       setSuccess(true);
 
-      // Redirect to the new recipe page after 2 seconds
+      // Redirect to the recipe page after 2 seconds
       setTimeout(() => {
         router.push(`/recipes/${data.recipe.slug}`);
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Error creating recipe');
-      console.error('Error creating recipe:', err);
+      setError(err.message || 'Error updating recipe');
+      console.error('Error updating recipe:', err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Mock categories for initial display
-  const mockCategories: Category[] = [
-    { _id: '1', name: 'Italian' },
-    { _id: '2', name: 'Asian' },
-    { _id: '3', name: 'Vegetarian' },
-    { _id: '4', name: 'Desserts' },
-    { _id: '5', name: 'Breakfast' },
-    { _id: '6', name: 'Quick & Easy' },
-    { _id: '7', name: 'Seafood' },
-    { _id: '8', name: 'Baking' },
-  ];
-
   // Use mock data if no categories are loaded yet
-  const displayCategories = categories.length > 0 ? categories : mockCategories;
+  const displayCategories = categories.length > 0 ? categories : [];
 
   if (status === 'loading' || loading) {
     return (
@@ -392,9 +423,9 @@ export default function NewRecipePage() {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto bg-green-50 p-6 rounded-xl text-center">
-          <h2 className="text-2xl font-bold text-green-700 mb-2">Recipe Created Successfully!</h2>
+          <h2 className="text-2xl font-bold text-green-700 mb-2">Recipe Updated Successfully!</h2>
           <p className="text-green-600 mb-4">
-            Your recipe has been created and will be available for others to enjoy.
+            Your recipe has been updated and will be available for others to enjoy.
           </p>
           <p className="text-gray-600">Redirecting to your recipe page...</p>
         </div>
@@ -405,17 +436,33 @@ export default function NewRecipePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold mb-2">Create New Recipe</h1>
-          <p className="text-gray-600">
-            Share your culinary creations with the AndCook community.
-          </p>
-        </motion.div>
+        <div className="flex justify-between items-center mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-3xl font-bold mb-2">Edit Recipe</h1>
+            <p className="text-gray-600">
+              Update your recipe details below.
+            </p>
+          </motion.div>
+
+          <div className="flex space-x-3">
+            <Link
+              href="/admin"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              Back to Dashboard
+            </Link>
+            <Link
+              href={recipe ? `/recipes/${recipe.slug}` : '/recipes'}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              View Recipe
+            </Link>
+          </div>
+        </div>
 
         {error && (
           <div className="bg-red-50 text-red-500 p-4 rounded-md mb-6">
@@ -594,13 +641,13 @@ export default function NewRecipePage() {
                       </div>
                     )}
 
-                    {formData.mainImage && imageUploadMethod === 'upload' && (
+                    {formData.mainImage && (
                       <div className="mt-3">
-                        <p className="text-sm text-green-600">Image uploaded successfully!</p>
-                        <div className="mt-2 relative w-32 h-32 border border-gray-300 rounded-md overflow-hidden">
+                        <p className="text-sm text-green-600 mb-2">Current image:</p>
+                        <div className="relative w-32 h-32 border border-gray-300 rounded-md overflow-hidden">
                           <img
                             src={formData.mainImage}
-                            alt="Uploaded preview"
+                            alt="Recipe"
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -754,8 +801,19 @@ export default function NewRecipePage() {
               variant="primary"
               size="lg"
               disabled={submitting}
+              className="flex items-center"
             >
-              {submitting ? 'Creating Recipe...' : 'Create Recipe'}
+              {submitting ? (
+                <>
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <FaSave className="mr-2" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </div>
         </form>

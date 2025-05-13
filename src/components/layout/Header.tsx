@@ -130,6 +130,14 @@ const Header: React.FC = () => {
                     >
                       Add Recipe
                     </Link>
+                    {session.user.role === 'admin' || session.user.email === 'lukafartenadze2004@gmail.com' ? (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 text-sm text-orange-600 font-medium hover:bg-orange-50"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    ) : null}
                     <button
                       onClick={() => signOut()}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -258,6 +266,15 @@ const Header: React.FC = () => {
                       >
                         Add Recipe
                       </Link>
+                      {(session.user.email === 'lukafartenadze2004@gmail.com' || session.user.role === 'admin') && (
+                        <Link
+                          href="/admin"
+                          className="text-orange-600 font-medium hover:text-orange-700 py-2 block"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           signOut();

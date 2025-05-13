@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import connectToDatabase from '../../../lib/db/mongodb';
 import Recipe from '../../../lib/models/Recipe';
+import User from '../../../lib/models/User';
 import { handler as authOptions } from '../auth/[...nextauth]/route';
 
 // Get all recipes
@@ -88,6 +89,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log("POST /api/recipes - Session:", JSON.stringify(session, null, 2));
+
     const data = await req.json();
 
     // Validate required fields
@@ -99,6 +102,16 @@ export async function POST(req: NextRequest) {
     }
 
     await connectToDatabase();
+
+    // Find user by email since the ID might not be in the session
+    const user = await User.findOne({ email: session.user.email });
+
+    if (!user) {
+      return NextResponse.json(
+        { message: 'User not found. Please complete your profile first.' },
+        { status: 400 }
+      );
+    }
 
     // Create slug from title
     const slug = data.title
@@ -117,7 +130,7 @@ export async function POST(req: NextRequest) {
     const newRecipe = new Recipe({
       ...data,
       slug: finalSlug,
-      author: session.user.id,
+      author: user._id, // Use the user's MongoDB _id
     });
 
     await newRecipe.save();
@@ -129,7 +142,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error creating recipe:', error);
     return NextResponse.json(
-      { message: 'Error creating recipe' },
+      { message: `Error creating recipe: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

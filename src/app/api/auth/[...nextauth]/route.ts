@@ -39,6 +39,7 @@ export const handler = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
+          role: user.role || 'user',
         };
       },
     }),
@@ -47,18 +48,20 @@ export const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        console.log("JWT callback - Adding user ID to token:", user.id);
+        token.role = user.role || 'user';
+        console.log("JWT callback - Adding user ID and role to token:", user.id, user.role);
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // Ensure the user object has an id property
+        // Ensure the user object has an id property and role
         session.user = {
           ...session.user,
-          id: token.id as string
+          id: token.id as string,
+          role: token.role as string || 'user'
         };
-        console.log("Session callback - Adding user ID to session:", token.id);
+        console.log("Session callback - Adding user ID and role to session:", token.id, token.role);
         console.log("Updated session user:", session.user);
       } else {
         console.log("Session callback - Warning: Unable to add user ID to session", {

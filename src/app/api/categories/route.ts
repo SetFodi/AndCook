@@ -9,9 +9,18 @@ export async function GET() {
   try {
     await connectToDatabase();
 
+    console.log('Categories API: Connected to database');
+
     const categories = await Category.find().sort({ name: 1 });
 
-    return NextResponse.json(categories);
+    console.log(`Categories API: Found ${categories.length} categories`);
+
+    // Log the categories for debugging
+    if (categories.length > 0) {
+      console.log('Categories API: Categories:', JSON.stringify(categories, null, 2));
+    }
+
+    return NextResponse.json({ categories });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json(

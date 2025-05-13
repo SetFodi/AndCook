@@ -281,5 +281,77 @@ export const sampleCategories = [
     description: "Delicious desserts and treats that don't require an oven.",
     image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=1000",
     slug: "no-bake"
+  },
+  {
+    name: "Georgian",
+    description: "Traditional dishes from Georgia featuring unique spices, hearty stews, cheese breads, and dumplings.",
+    image: "https://images.unsplash.com/photo-1584278858647-52115c9df4ed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "georgian"
+  },
+  {
+    name: "Bread",
+    description: "Homemade bread recipes from simple loaves to flatbreads and specialty breads.",
+    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc7b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "bread"
+  },
+  {
+    name: "Dumplings",
+    description: "Delicious filled dough pockets from around the world, from potstickers to pierogi.",
+    image: "https://images.unsplash.com/photo-1610197361600-33a3a5073cad?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "dumplings"
+  },
+  {
+    name: "Stew",
+    description: "Hearty and comforting stews from around the world, perfect for cold days.",
+    image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80",
+    slug: "stew"
+  },
+  {
+    name: "Appetizer",
+    description: "Delicious starters and finger foods perfect for parties and gatherings.",
+    image: "https://images.unsplash.com/photo-1541529086526-db283c563270?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "appetizer"
+  },
+  {
+    name: "Spanish",
+    description: "Vibrant dishes from Spain featuring paella, tapas, and seafood.",
+    image: "https://images.unsplash.com/photo-1534080564583-6be75777b70a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "spanish"
+  },
+  {
+    name: "Scandinavian",
+    description: "Traditional Nordic cuisine featuring seafood, berries, and hearty comfort foods.",
+    image: "https://images.unsplash.com/photo-1515516969-d4008cc6241a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
+    slug: "scandinavian"
+  },
+  {
+    name: "Japanese",
+    description: "Elegant Japanese cuisine featuring sushi, ramen, and other traditional dishes.",
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "japanese"
+  },
+  {
+    name: "Rice",
+    description: "Delicious rice-based dishes from around the world, from risotto to biryani.",
+    image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
+    slug: "rice"
+  },
+  {
+    name: "Mexican",
+    description: "Vibrant Mexican cuisine featuring tacos, enchiladas, and other flavorful dishes.",
+    image: "https://images.unsplash.com/photo-1534352956036-cd81e27dd615?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "mexican"
+  },
+  {
+    name: "Indian",
+    description: "Rich and aromatic Indian cuisine with complex spices and diverse regional specialties.",
+    image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1371&q=80",
+    slug: "indian"
+  },
+  {
+    name: "Seafood",
+    description: "Fresh seafood dishes from around the world, from grilled fish to seafood stews.",
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+    slug: "seafood"
   }
 ];
