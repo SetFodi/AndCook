@@ -64,7 +64,8 @@ export default function RecipeDetailPage() {
   const [submittingRating, setSubmittingRating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const slug = params.slug as string;
+  // Get the slug from params safely
+  const slug = typeof params?.slug === 'string' ? params.slug : Array.isArray(params?.slug) ? params.slug[0] : '';
 
   // Fetch recipe
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function RecipeDetailPage() {
     try {
       setSubmittingRating(true);
 
-      const response = await fetch(`/api/recipes/${slug}/rate`, {
+      const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export default function RecipeDetailPage() {
       }
 
       // Refresh recipe data
-      const recipeResponse = await fetch(`/api/recipes/${slug}`);
+      const recipeResponse = await fetch(`/api/recipes/${encodeURIComponent(slug)}`);
       const updatedRecipe = await recipeResponse.json();
       setRecipe(updatedRecipe);
 
@@ -145,7 +146,7 @@ export default function RecipeDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/recipes/${slug}`, {
+      const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}`, {
         method: 'DELETE',
       });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -27,8 +27,8 @@ interface Category {
 }
 
 export default function EditRecipePage({ params }: { params: { id: string } }) {
-  // Unwrap params using React.use() to avoid warnings
-  const unwrappedParams = React.use(params as any);
+  // Get the ID safely without using React.use()
+  const id = params?.id;
   const { data: session, status } = useSession();
   const router = useRouter();
   const [recipe, setRecipe] = useState<any>(null);
@@ -74,11 +74,11 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
     } else if (status === 'unauthenticated') {
       router.push('/auth/signin');
     }
-  }, [status, session, router, unwrappedParams.id]);
+  }, [status, session, router, id]);
 
   const fetchRecipe = async () => {
     try {
-      const response = await fetch(`/api/recipes/by-id/${unwrappedParams.id}`);
+      const response = await fetch(`/api/recipes/by-id/${encodeURIComponent(id)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch recipe');
       }
@@ -375,7 +375,7 @@ export default function EditRecipePage({ params }: { params: { id: string } }) {
         instructions,
       };
 
-      const response = await fetch(`/api/recipes/by-id/${unwrappedParams.id}`, {
+      const response = await fetch(`/api/recipes/by-id/${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

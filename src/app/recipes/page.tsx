@@ -117,7 +117,7 @@ export default function RecipesPage() {
       }
 
       const data = await response.json();
-      setCategories(data || []);
+      setCategories(data.categories || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
@@ -172,6 +172,8 @@ export default function RecipesPage() {
         return [...prev, categoryId];
       }
     });
+
+    // Don't fetch immediately to allow multiple selections before applying
   };
 
   const handlePageChange = (page: number) => {
@@ -485,8 +487,9 @@ export default function RecipesPage() {
           {/* Apply Filters Button */}
           <button
             onClick={() => fetchRecipes(1)}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md mb-4"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md mb-4 flex items-center justify-center"
           >
+            <FaFilter className="mr-2" />
             Apply Filters
           </button>
 
