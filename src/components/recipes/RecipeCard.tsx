@@ -49,29 +49,29 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
             <div className="flex items-center">
               <FaClock className="mr-1" />
-              <span>{recipe.cookingTime} min</span>
+              <span>{recipe.cookingTime || 0} min</span>
             </div>
             <div className="flex items-center">
               <FaUtensils className="mr-1" />
-              <span>{recipe.difficulty}</span>
+              <span>{recipe.difficulty || 'Easy'}</span>
             </div>
             <div className="flex items-center">
               <FaStar className="mr-1 text-yellow-400" />
-              <span>{recipe.averageRating.toFixed(1)}</span>
+              <span>{recipe.averageRating ? recipe.averageRating.toFixed(1) : '0.0'}</span>
             </div>
           </div>
 
           <div className="flex items-center mt-2">
             <div className="relative h-8 w-8 rounded-full overflow-hidden">
               <Image
-                src={recipe.author.image || '/images/default-avatar.png'}
-                alt={recipe.author.name}
+                src={(recipe.author && recipe.author.image) ? recipe.author.image : '/images/default-avatar.png'}
+                alt={(recipe.author && recipe.author.name) ? recipe.author.name : 'Author'}
                 fill
                 className="object-cover"
               />
             </div>
             <span className="ml-2 text-sm text-gray-600">
-              {recipe.author.name}
+              {(recipe.author && recipe.author.name) ? recipe.author.name : 'Author'}
             </span>
           </div>
         </div>

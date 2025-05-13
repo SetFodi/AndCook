@@ -118,20 +118,64 @@ export async function DELETE(
       );
     }
 
-    // Find the user's rating
-    const existingRatingIndex = recipe.ratings.findIndex(
-      (r: any) => r.user === session.user.id
-    );
+    // Check if this is an admin deletion
+    const isAdmin = session.user.email === 'lukafartenadze2004@gmail.com' || session.user.role === 'admin';
+    console.log('User role check:', session.user.email, isAdmin ? 'is admin' : 'is not admin');
+    let ratingIndexToDelete = -1;
 
-    if (existingRatingIndex === -1) {
+    // If admin is deleting a specific review
+    if (isAdmin) {
+      try {
+        // Try to get the review index from the request body
+        const body = await req.json();
+        if (body && body.reviewIndex !== undefined) {
+          ratingIndexToDelete = body.reviewIndex;
+          console.log('Admin deleting review at index:', ratingIndexToDelete);
+        }
+      } catch (e) {
+        // If no body, continue with normal deletion
+        console.log('No request body, continuing with normal deletion');
+      }
+    }
+
+    // If not admin or no specific review index provided, find the user's own review
+    if (ratingIndexToDelete === -1) {
+      // Find the user's rating by name (more reliable than ID)
+      ratingIndexToDelete = recipe.ratings.findIndex((r: any) => {
+        // Try to match by user ID first
+        if (r.user === session.user.id) return true;
+
+        // Then try to match by name
+        if (r.userName && session.user.name && r.userName === session.user.name) return true;
+
+        return false;
+      });
+    }
+
+    if (ratingIndexToDelete === -1) {
       return NextResponse.json(
-        { message: 'You have not rated this recipe' },
+        { message: 'Rating not found' },
         { status: 404 }
       );
     }
 
+    // Check if user has permission to delete this review
+    if (!isAdmin && recipe.ratings[ratingIndexToDelete].userName !== session.user.name) {
+      console.log('Permission denied:', {
+        isAdmin,
+        reviewUserName: recipe.ratings[ratingIndexToDelete].userName,
+        sessionUserName: session.user.name
+      });
+      return NextResponse.json(
+        { message: 'You do not have permission to delete this review' },
+        { status: 403 }
+      );
+    }
+
+    console.log('Permission granted to delete review');
+
     // Remove the rating
-    recipe.ratings.splice(existingRatingIndex, 1);
+    recipe.ratings.splice(ratingIndexToDelete, 1);
 
     // Recalculate average rating
     if (recipe.ratings.length > 0) {
@@ -147,7 +191,7 @@ export async function DELETE(
     await recipe.save();
 
     return NextResponse.json({
-      message: 'Rating deleted successfully',
+      message: isAdmin ? 'Rating deleted by admin' : 'Rating deleted successfully',
       averageRating: recipe.averageRating,
     });
   } catch (error) {

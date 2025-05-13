@@ -51,6 +51,9 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Populate favorites with full recipe data
+    await user.populate('favorites');
+
     // Get user recipes
     const recipes = await Recipe.find({ author: user._id })
       .sort({ createdAt: -1 })

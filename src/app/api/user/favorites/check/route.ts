@@ -10,12 +10,14 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session || !session.user) {
       return NextResponse.json(
         { message: 'Unauthorized' },
         { status: 401 }
       );
     }
+
+    console.log('Check favorites - Session:', session);
 
     const url = new URL(req.url);
     const recipeId = url.searchParams.get('recipeId');
@@ -29,7 +31,19 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
 
-    const user = await User.findById(session.user.id);
+    // Get user by email since the ID might not be in the session
+    console.log('Looking for user with email:', session.user?.email);
+
+    if (!session.user?.email) {
+      return NextResponse.json(
+        { message: 'Invalid user session - missing email' },
+        { status: 401 }
+      );
+    }
+
+    const user = await User.findOne({ email: session.user.email });
+    console.log('Found user:', user ? user._id.toString() : 'not found');
+
     if (!user) {
       return NextResponse.json(
         { message: 'User not found' },
@@ -38,9 +52,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Check if recipe is in favorites
-    const isFavorite = user.favorites.some(
-      (favId: mongoose.Types.ObjectId) => favId.toString() === recipeId
-    );
+    const isFavorite = user.favorites && user.favorites.length > 0
+      ? user.favorites.some(
+          (favId: mongoose.Types.ObjectId) => favId && favId.toString && favId.toString() === recipeId
+        )
+      : false;
 
     return NextResponse.json({
       isFavorite

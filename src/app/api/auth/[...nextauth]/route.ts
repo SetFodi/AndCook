@@ -55,19 +55,24 @@ export const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
+        // Special case for admin user
+        const isAdmin = session.user.email === 'lukafartenadze2004@gmail.com';
+
         // Ensure the user object has an id property and role
         session.user = {
           ...session.user,
           id: token.id as string,
-          role: token.role as string || 'user',
+          // Force admin role for specific email
+          role: isAdmin ? 'admin' : (token.role as string || 'user'),
           image: session.user.image || '/images/default-avatar.png'
         };
-        console.log("Session callback - Adding user ID and role to session:", token.id, token.role);
+        console.log("Session callback - Adding user ID and role to session:", token.id, isAdmin ? 'admin (forced)' : token.role);
         console.log("Updated session user:", session.user);
       } else {
         console.log("Session callback - Warning: Unable to add user ID to session", {
           hasToken: !!token,
-          hasSessionUser: !!session.user
+          hasSessionUser: !!session.user,
+          token: token
         });
       }
       return session;

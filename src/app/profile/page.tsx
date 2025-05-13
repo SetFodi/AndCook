@@ -194,8 +194,8 @@ export default function ProfilePage() {
     favorites: [],
   };
 
-  // Use mock data if no data is loaded yet
-  const displayRecipes = userRecipes.length > 0 ? userRecipes : mockRecipes;
+  // Use real data, not mock data
+  const displayRecipes = userRecipes;
   const displayProfile = profile || mockProfile;
 
   if (status === 'loading' || loading) {
@@ -453,16 +453,20 @@ export default function ProfilePage() {
 
             {displayProfile.favorites && displayProfile.favorites.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayProfile.favorites.map((recipe, index) => (
-                  <motion.div
-                    key={recipe._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <RecipeCard recipe={recipe} />
-                  </motion.div>
-                ))}
+                {displayProfile.favorites.map((recipe: any, index: number) => {
+                  // Make sure recipe has an _id
+                  const recipeId = recipe._id ? recipe._id.toString() : `favorite-${index}`;
+                  return (
+                    <motion.div
+                      key={recipeId}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <RecipeCard recipe={recipe} />
+                    </motion.div>
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-gray-50 p-8 rounded-xl text-center">

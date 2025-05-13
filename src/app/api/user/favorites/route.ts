@@ -11,12 +11,14 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session || !session.user) {
       return NextResponse.json(
         { message: 'Unauthorized' },
         { status: 401 }
       );
     }
+
+    console.log('Session:', session);
 
     const { recipeId } = await req.json();
 
@@ -39,7 +41,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Add recipe to user's favorites if not already there
-    const user = await User.findById(session.user.id);
+    console.log('Session user:', session.user);
+    console.log('Full session:', JSON.stringify(session));
+
+    // Get user by email since the ID might not be in the session
+    console.log('Looking for user with email:', session.user?.email);
+
+    if (!session.user?.email) {
+      return NextResponse.json(
+        { message: 'Invalid user session - missing email' },
+        { status: 401 }
+      );
+    }
+
+    const user = await User.findOne({ email: session.user.email });
+    console.log('Found user:', user ? user._id.toString() : 'not found');
+
     if (!user) {
       return NextResponse.json(
         { message: 'User not found' },
@@ -48,14 +65,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if recipe is already in favorites
-    const isAlreadyFavorite = user.favorites.some(
-      (favId: mongoose.Types.ObjectId) => favId.toString() === recipeId
-    );
+    const isAlreadyFavorite = user.favorites && user.favorites.length > 0
+      ? user.favorites.some(
+          (favId: mongoose.Types.ObjectId) => favId && favId.toString && favId.toString() === recipeId
+        )
+      : false;
 
     if (isAlreadyFavorite) {
       // Remove from favorites (toggle behavior)
       await User.findByIdAndUpdate(
-        session.user.id,
+        user._id,
         { $pull: { favorites: recipeId } },
         { new: true }
       );
@@ -66,7 +85,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Add to favorites
       await User.findByIdAndUpdate(
-        session.user.id,
+        user._id,
         { $addToSet: { favorites: recipeId } },
         { new: true }
       );
@@ -98,7 +117,15 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
 
-    const user = await User.findById(session.user.id).populate('favorites');
+    // Get user by email since the ID might not be in the session
+    if (!session.user?.email) {
+      return NextResponse.json(
+        { message: 'Invalid user session - missing email' },
+        { status: 401 }
+      );
+    }
+
+    const user = await User.findOne({ email: session.user.email }).populate('favorites');
     if (!user) {
       return NextResponse.json(
         { message: 'User not found' },

@@ -93,7 +93,7 @@ export default function RecipeDetailPage() {
 
   // Toggle favorite status
   const handleToggleFavorite = async () => {
-    if (!session) {
+    if (!session || !session.user) {
       router.push('/auth/signin');
       return;
     }
@@ -104,7 +104,19 @@ export default function RecipeDetailPage() {
       setSavingToFavorites(true);
       startLoading(); // Start global loading animation
 
+      // Debug session information
+      console.log('Session:', session);
+      console.log('Session user:', session.user);
+      console.log('User ID:', session.user.id);
       console.log('Saving recipe to favorites:', recipe._id);
+
+      // Make sure we have a valid user email
+      if (!session.user.email) {
+        alert('Error: Missing user email in session. Please try signing out and signing in again.');
+        setSavingToFavorites(false);
+        stopLoading();
+        return;
+      }
 
       const response = await fetch('/api/user/favorites', {
         method: 'POST',
@@ -129,7 +141,14 @@ export default function RecipeDetailPage() {
           alert('Recipe removed from your favorites.');
         }
       } else {
-        alert('Error saving recipe: ' + data.message);
+        console.error('Error response:', response.status, data);
+
+        if (response.status === 401) {
+          alert('You need to be signed in to save recipes. Please sign in and try again.');
+          router.push('/auth/signin');
+        } else {
+          alert('Error saving recipe: ' + data.message);
+        }
       }
     } catch (err) {
       console.error('Error toggling favorite status:', err);
@@ -163,10 +182,15 @@ export default function RecipeDetailPage() {
 
         // Check if the user has already reviewed this recipe
         if (session && session.user && data.ratings) {
-          const userReview = data.ratings.findIndex((rating: any) =>
-            rating.user && session.user && session.user.id &&
-            rating.user === session.user.id
-          );
+          console.log('Checking if user has reviewed - Session user:', session.user);
+
+          // Try to find by email first (more reliable)
+          const userReview = data.ratings.findIndex((rating: any) => {
+            if (rating.userName && session.user.name) {
+              return rating.userName === session.user.name;
+            }
+            return false;
+          });
 
           if (userReview !== -1) {
             setUserHasReviewed(true);
@@ -236,10 +260,12 @@ export default function RecipeDetailPage() {
       // Update user review state
       if (!userHasReviewed) {
         // Find the user's review in the updated recipe
-        const userReviewIndex = updatedRecipe.ratings.findIndex(
-          (r: any) => r.user && session.user && session.user.id &&
-          r.user === session.user.id
-        );
+        const userReviewIndex = updatedRecipe.ratings.findIndex((r: any) => {
+          if (r.userName && session.user.name) {
+            return r.userName === session.user.name;
+          }
+          return false;
+        });
 
         if (userReviewIndex !== -1) {
           setUserHasReviewed(true);
@@ -298,18 +324,39 @@ export default function RecipeDetailPage() {
   };
 
   // Delete review
-  const handleDeleteReview = async () => {
-    if (!session || userReviewId === null) return;
+  const handleDeleteReview = async (reviewIndex?: number) => {
+    if (!session) return;
+
+    // If reviewIndex is provided, we're deleting a specific review (admin function)
+    // Otherwise, we're deleting the user's own review
+    const isAdminDelete = session.user.role === 'admin' && reviewIndex !== undefined;
+    const isUserDelete = userReviewId !== null && !isAdminDelete;
+
+    // Make sure we have a valid session and either admin privileges or it's the user's own review
+    if ((!isAdminDelete && !isUserDelete) || !recipe) return;
 
     try {
       startLoading();
 
-      const response = await fetch(`/api/recipes/${encodeURIComponent(slug)}/rate`, {
+      let endpoint = `/api/recipes/${encodeURIComponent(slug)}/rate`;
+      let requestOptions: RequestInit = {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         }
-      });
+      };
+
+      // If admin is deleting someone else's review, add the review index
+      if (isAdminDelete && reviewIndex !== undefined) {
+        const reviewToDelete = recipe.ratings[reviewIndex];
+        if (!reviewToDelete) return;
+
+        // Add the review index to the request body
+        requestOptions.body = JSON.stringify({ reviewIndex });
+        console.log('Admin deleting review:', reviewToDelete);
+      }
+
+      const response = await fetch(endpoint, requestOptions);
 
       if (!response.ok) {
         throw new Error('Failed to delete review');
@@ -320,15 +367,21 @@ export default function RecipeDetailPage() {
       const updatedRecipe = await recipeResponse.json();
       setRecipe(updatedRecipe);
 
-      // Reset states
-      setUserHasReviewed(false);
-      setUserReviewId(null);
-      setUserRating(0);
-      setComment('');
-      setEditingReview(false);
+      // Reset states if user deleted their own review
+      if (isUserDelete) {
+        setUserHasReviewed(false);
+        setUserReviewId(null);
+        setUserRating(0);
+        setComment('');
+        setEditingReview(false);
+      }
+
+      // Show success message
+      alert(isAdminDelete ? 'Review deleted by admin' : 'Your review has been deleted');
 
     } catch (err) {
       console.error('Error deleting review:', err);
+      alert('Error deleting review. Please try again.');
     } finally {
       stopLoading();
     }
@@ -637,147 +690,59 @@ export default function RecipeDetailPage() {
       >
         <h2 className="text-xl font-bold mb-6">Ratings & Reviews</h2>
 
-        {/* Add/Edit Rating Form */}
+        {/* Reviews Section */}
         <div className="mb-8 border-b pb-8">
-          {session ? (
-            userHasReviewed ? (
-              // User has already reviewed - show their review with edit/delete options
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Your Review</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleEditReview}
-                      className="flex items-center gap-1 text-orange-500 hover:text-orange-600"
-                    >
-                      <FaEdit /> Edit
-                    </button>
-                    <button
-                      onClick={handleDeleteReview}
-                      className="flex items-center gap-1 text-red-500 hover:text-red-600"
-                    >
-                      <FaTrash /> Delete
-                    </button>
+          <h3 className="text-xl font-bold mb-4">Reviews</h3>
+
+          {/* Add Review Form - Only show if user hasn't reviewed yet */}
+          {session && !userHasReviewed && !editingReview ? (
+            <div className="mb-8 border p-4 rounded-lg">
+              <h4 className="text-lg font-medium mb-4">Add Your Review</h4>
+              <form onSubmit={handleRatingSubmit}>
+                <div className="mb-4">
+                  <p className="mb-2">Your Rating</p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setUserRating(star)}
+                        className="text-2xl"
+                      >
+                        <FaStar
+                          className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
+                        />
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {editingReview ? (
-                  // Edit form
-                  <form onSubmit={handleRatingSubmit}>
-                    <div className="mb-4">
-                      <p className="mb-2">Your Rating</p>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setUserRating(star)}
-                            className="text-2xl"
-                          >
-                            <FaStar
-                              className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                <div className="mb-4">
+                  <label htmlFor="comment" className="block mb-2">
+                    Your Comment
+                  </label>
+                  <textarea
+                    id="comment"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows={4}
+                  ></textarea>
+                </div>
 
-                    <div className="mb-4">
-                      <label htmlFor="comment" className="block mb-2">
-                        Your Comment
-                      </label>
-                      <textarea
-                        id="comment"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        rows={4}
-                      ></textarea>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={submittingRating || userRating === 0}
-                      >
-                        {submittingRating ? 'Submitting...' : 'Update Review'}
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={handleCancelEdit}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                ) : (
-                  // Display review
-                  <div className="bg-orange-50 p-4 rounded-md">
-                    <div className="flex mb-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <FaStar
-                          key={star}
-                          className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-gray-700">{comment || 'No comment provided'}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              // User has not reviewed yet - show the form
-              <div>
-                <h3 className="text-lg font-medium mb-4">Add Your Review</h3>
-                <form onSubmit={handleRatingSubmit}>
-                  <div className="mb-4">
-                    <p className="mb-2">Your Rating</p>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setUserRating(star)}
-                          className="text-2xl"
-                        >
-                          <FaStar
-                            className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="comment" className="block mb-2">
-                      Your Comment
-                    </label>
-                    <textarea
-                      id="comment"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      rows={4}
-                    ></textarea>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={submittingRating || userRating === 0}
-                  >
-                    {submittingRating ? 'Submitting...' : 'Submit Review'}
-                  </Button>
-                </form>
-              </div>
-            )
-          ) : (
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={submittingRating || userRating === 0}
+                >
+                  {submittingRating ? 'Submitting...' : 'Submit Review'}
+                </Button>
+              </form>
+            </div>
+          ) : !session ? (
             // User is not signed in
-            <div>
-              <h3 className="text-lg font-medium mb-4">Add Your Review</h3>
+            <div className="mb-8 border p-4 rounded-lg">
+              <h4 className="text-lg font-medium mb-4">Add Your Review</h4>
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="mb-2">Please sign in to leave a review.</p>
                 <Link href="/auth/signin">
@@ -785,10 +750,67 @@ export default function RecipeDetailPage() {
                 </Link>
               </div>
             </div>
+          ) : null}
+
+          {/* Edit Form - Only show when editing */}
+          {editingReview && (
+            <div className="mb-8 border p-4 rounded-lg bg-orange-50">
+              <h4 className="text-lg font-medium mb-4">Edit Your Review</h4>
+              <form onSubmit={handleRatingSubmit}>
+                <div className="mb-4">
+                  <p className="mb-2">Your Rating</p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setUserRating(star)}
+                        className="text-2xl"
+                      >
+                        <FaStar
+                          className={star <= userRating ? 'text-yellow-400' : 'text-gray-300'}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="comment" className="block mb-2">
+                    Your Comment
+                  </label>
+                  <textarea
+                    id="comment"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows={4}
+                  ></textarea>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={submittingRating || userRating === 0}
+                  >
+                    {submittingRating ? 'Submitting...' : 'Update Review'}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
 
-        {/* Reviews List */}
+        {/* Other Reviews List */}
         <div>
           <h3 className="text-lg font-medium mb-4">
             {displayRecipe.ratings.length} {displayRecipe.ratings.length === 1 ? 'Review' : 'Reviews'}
@@ -796,43 +818,71 @@ export default function RecipeDetailPage() {
 
           {displayRecipe.ratings.length > 0 ? (
             <div className="space-y-6">
-              {displayRecipe.ratings.map((rating, index) => (
-                <div key={index} className="border-b pb-6 last:border-b-0">
-                  <div className="flex items-center mb-2">
-                    <div className="relative h-10 w-10 rounded-full overflow-hidden">
-                      <Image
-                        src={rating.userImage || '/images/default-avatar.png'}
-                        alt={rating.userName || 'User'}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="ml-3">
-                      <p className="font-medium">
-                        {rating.userName
-                          ? (session && rating.user === session.user.id
-                              ? `${rating.userName} (You)`
-                              : rating.userName)
-                          : 'User'}
-                      </p>
+              {displayRecipe.ratings.map((rating, index) => {
+                const isUserReview = session && session.user &&
+                  rating.userName && session.user.name &&
+                  rating.userName === session.user.name;
+
+                return (
+                  <div key={index} className={`border-b pb-6 last:border-b-0 ${isUserReview ? 'bg-orange-50 p-4 rounded-lg' : ''}`}>
+                    <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center">
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <FaStar
-                              key={star}
-                              className={star <= rating.rating ? 'text-yellow-400' : 'text-gray-300'}
-                            />
-                          ))}
+                        <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                          <Image
+                            src={rating.userImage || '/images/default-avatar.png'}
+                            alt={rating.userName || 'User'}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
-                        <span className="ml-2 text-sm text-gray-500">
-                          {rating.date ? new Date(rating.date).toLocaleDateString() : 'Unknown date'}
-                        </span>
+                        <div className="ml-3">
+                          <p className="font-medium">
+                            {rating.userName || 'User'}
+                            {isUserReview ? ' (You)' : ''}
+                          </p>
+                          <div className="flex items-center">
+                            <div className="flex">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <FaStar
+                                  key={star}
+                                  className={star <= rating.rating ? 'text-yellow-400' : 'text-gray-300'}
+                                />
+                              ))}
+                            </div>
+                            <span className="ml-2 text-sm text-gray-500">
+                              {rating.date ? new Date(rating.date).toLocaleDateString() : 'Unknown date'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Show edit/delete for user's own review or delete for admin */}
+                      {!editingReview && (isUserReview || (session?.user?.role === 'admin')) && (
+                        <div className="flex gap-2">
+                          {/* Only show edit for user's own review */}
+                          {isUserReview && (
+                            <button
+                              onClick={handleEditReview}
+                              className="flex items-center gap-1 text-orange-500 hover:text-orange-600"
+                            >
+                              <FaEdit /> Edit
+                            </button>
+                          )}
+
+                          {/* Show delete for both user's own review and admin */}
+                          <button
+                            onClick={() => handleDeleteReview(index)}
+                            className="flex items-center gap-1 text-red-500 hover:text-red-600"
+                          >
+                            <FaTrash /> {session?.user?.role === 'admin' && !isUserReview ? 'Admin Delete' : 'Delete'}
+                          </button>
+                        </div>
+                      )}
                     </div>
+                    <p className="text-gray-700">{rating.comment || 'No comment provided'}</p>
                   </div>
-                  <p className="text-gray-700">{rating.comment || 'No comment provided'}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-500">No reviews yet. Be the first to review this recipe!</p>
