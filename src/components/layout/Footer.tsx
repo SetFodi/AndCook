@@ -18,20 +18,11 @@ const Footer: React.FC = () => {
               Discover delicious recipes from around the world. Cook, share, and enjoy!
             </p>
             <div className="flex space-x-5 mt-8">
-              <a href="#" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Facebook">
+              <a href="https://www.facebook.com/luka.fartenadze.1" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Facebook">
                 <FaFacebook size={20} />
               </a>
-              <a href="#" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Twitter">
-                <FaTwitter size={20} />
-              </a>
-              <a href="#" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Instagram">
+              <a href="https://www.instagram.com/fartenadzeluka/" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Instagram">
                 <FaInstagram size={20} />
-              </a>
-              <a href="#" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="Pinterest">
-                <FaPinterest size={20} />
-              </a>
-              <a href="#" className="text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-300" aria-label="YouTube">
-                <FaYoutube size={20} />
               </a>
             </div>
           </div>
