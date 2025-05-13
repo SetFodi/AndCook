@@ -80,6 +80,14 @@ const Header: React.FC = () => {
               </span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
             </Link>
+            <Link href="/contact" className="font-medium relative group">
+              <span
+                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
+              >
+                Contact
+              </span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+            </Link>
           </nav>
 
           {/* Search Bar */}
@@ -227,6 +235,16 @@ const Header: React.FC = () => {
                 >
                   <span className="transform group-hover:translate-x-2 transition-transform duration-300">
                     Categories
+                  </span>
+                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                    Contact
                   </span>
                   <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>

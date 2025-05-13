@@ -53,6 +53,12 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/contact" className="text-gray-600 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
+                  <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
+                  <span className="group-hover:pl-3 transition-all duration-300">Contact</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/categories" className="text-gray-600 hover:text-primary hover:pl-2 transition-all duration-300 flex items-center group">
                   <span className="absolute w-0 h-0.5 bg-primary group-hover:w-1 mr-1 transition-all duration-300"></span>
                   <span className="group-hover:pl-3 transition-all duration-300">Categories</span>
