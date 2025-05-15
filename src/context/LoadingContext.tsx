@@ -1,10 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import LoadingIndicator from '../components/ui/LoadingIndicator';
 
 interface LoadingContextType {
   isLoading: boolean;
+  isSessionLoading: boolean;
   startLoading: () => void;
   stopLoading: () => void;
 }
@@ -24,8 +26,26 @@ interface LoadingProviderProps {
 }
 
 export function LoadingProvider({ children }: LoadingProviderProps) {
+  const { status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
   const [loadingCount, setLoadingCount] = useState(0);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Track session loading state
+  useEffect(() => {
+    if (status === 'loading') {
+      setIsSessionLoading(true);
+    } else {
+      // Add a small delay to ensure all session-dependent data is loaded
+      const timer = setTimeout(() => {
+        setIsSessionLoading(false);
+        setInitialLoadComplete(true);
+      }, 1000); // 1 second delay after session is loaded
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
   // Use a counter to track nested loading states
   const startLoading = useCallback(() => {
@@ -51,14 +71,24 @@ export function LoadingProvider({ children }: LoadingProviderProps) {
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
     isLoading,
+    isSessionLoading,
     startLoading,
     stopLoading
-  }), [isLoading, startLoading, stopLoading]);
+  }), [isLoading, isSessionLoading, startLoading, stopLoading]);
+
+  // Show loading indicator if either regular loading or session loading is active
+  const showLoadingIndicator = isLoading || (isSessionLoading && !initialLoadComplete);
 
   return (
     <LoadingContext.Provider value={contextValue}>
       {children}
-      {isLoading && <LoadingIndicator fullScreen size="large" />}
+      {showLoadingIndicator && (
+        <LoadingIndicator
+          fullScreen
+          size="large"
+          text={isSessionLoading ? "Loading your session..." : undefined}
+        />
+      )}
     </LoadingContext.Provider>
   );
 }

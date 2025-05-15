@@ -36,9 +36,11 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <LoadingProvider>
-            <Header />
-            <main className="flex-grow pt-16 md:pt-20">{children}</main>
-            <Footer />
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow pt-16 md:pt-20">{children}</main>
+              <Footer />
+            </div>
           </LoadingProvider>
         </NextAuthProvider>
       </body>

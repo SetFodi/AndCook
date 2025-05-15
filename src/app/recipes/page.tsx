@@ -50,7 +50,7 @@ function RecipesContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || '';
-  const { startLoading, stopLoading } = useLoading();
+  const { startLoading, stopLoading, isSessionLoading } = useLoading();
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -191,9 +191,19 @@ function RecipesContent() {
       }
     };
 
-    fetchInitialRecipes();
+    // Only fetch data if session is not loading
+    if (!isSessionLoading) {
+      fetchInitialRecipes();
+    } else {
+      // If session is loading, wait for it to complete
+      const timer = setTimeout(() => {
+        fetchInitialRecipes();
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isSessionLoading]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -576,9 +586,12 @@ function RecipesContent() {
           </div>
 
           {/* Recipes Grid */}
-          {loading ? (
+          {loading || isSessionLoading ? (
             <div className="flex justify-center items-center h-64">
-              <LoadingIndicator size="medium" text="Finding delicious recipes..." />
+              <LoadingIndicator
+                size="medium"
+                text={isSessionLoading ? "Loading your session..." : "Finding delicious recipes..."}
+              />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
