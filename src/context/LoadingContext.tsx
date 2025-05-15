@@ -34,14 +34,18 @@ export function LoadingProvider({ children }: LoadingProviderProps) {
 
   // Track session loading state
   useEffect(() => {
+    console.log(`Session status changed: ${status}`);
+
     if (status === 'loading') {
       setIsSessionLoading(true);
     } else {
-      // Add a small delay to ensure all session-dependent data is loaded
+      console.log('Session loaded, waiting to ensure data consistency...');
+      // Add a delay to ensure all session-dependent data is loaded
       const timer = setTimeout(() => {
+        console.log('Session loading complete, ready to fetch data');
         setIsSessionLoading(false);
         setInitialLoadComplete(true);
-      }, 1000); // 1 second delay after session is loaded
+      }, 1500); // 1.5 second delay after session is loaded for better reliability
 
       return () => clearTimeout(timer);
     }

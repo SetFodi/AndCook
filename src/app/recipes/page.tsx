@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import RecipeCard from '../../components/recipes/RecipeCard';
 import Button from '../../components/ui/Button';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useLoading } from '../../context/LoadingContext';
+import { fetchJsonWithRetry } from '../../lib/utils/api-utils';
 
 interface Recipe {
   _id: string;
@@ -68,7 +67,7 @@ function RecipesContent() {
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Fetch recipes
+  // Fetch recipes with retry mechanism
   const fetchRecipes = useCallback(async (page = 1) => {
     try {
       setLoading(true);
@@ -78,8 +77,8 @@ function RecipesContent() {
       const currentSearchQuery = searchQuery;
       const currentCategories = selectedCategories;
 
-      // Add timestamp to prevent caching
-      let url = `/api/recipes?page=${page}&limit=${pagination.limit}&_t=${Date.now()}`;
+      // Build the base URL
+      let url = `/api/recipes?page=${page}&limit=${pagination.limit}`;
 
       if (currentSearchQuery) {
         url += `&search=${encodeURIComponent(currentSearchQuery)}`;
@@ -95,30 +94,36 @@ function RecipesContent() {
       }
 
       console.log('Fetching recipes from:', url);
-      const response = await fetch(url, {
-        cache: 'no-store',
-        headers: {
-          'Pragma': 'no-cache',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch recipes');
+      // Use our utility function to fetch with retry logic
+      const data = await fetchJsonWithRetry<{
+        recipes: Recipe[];
+        pagination: {
+          total: number;
+          page: number;
+          limit: number;
+          pages: number;
+        };
+      }>(url, {}, 3, 15000); // 3 retries, 15 second timeout
+
+      console.log('Recipes fetched successfully:', data.recipes?.length || 0);
+
+      // Only update state if we have valid data
+      if (Array.isArray(data.recipes)) {
+        setRecipes(data.recipes);
+        setPagination(data.pagination || {
+          total: 0,
+          page: 1,
+          limit: 12,
+          pages: 0,
+        });
+      } else {
+        console.warn('Received invalid recipes data:', data);
+        throw new Error('Invalid recipe data format');
       }
-
-      const data = await response.json();
-      console.log('Recipes fetched:', data.recipes?.length || 0);
-      setRecipes(data.recipes || []);
-      setPagination(data.pagination || {
-        total: 0,
-        page: 1,
-        limit: 12,
-        pages: 0,
-      });
     } catch (err) {
+      console.error('Error fetching recipes after all retries:', err);
       setError('Error loading recipes. Please try again later.');
-      console.error('Error fetching recipes:', err);
     } finally {
       setLoading(false);
       stopLoading(); // Stop global loading animation
@@ -130,20 +135,15 @@ function RecipesContent() {
     try {
       startLoading(); // Start global loading animation
 
-      const response = await fetch(`/api/categories?_t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: {
-          'Pragma': 'no-cache',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      });
+      // Use our utility function to fetch with retry logic
+      const data = await fetchJsonWithRetry<{ categories: Category[] }>(
+        '/api/categories',
+        {},
+        3,
+        10000
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-
-      const data = await response.json();
-      console.log('Categories fetched:', data.categories?.length || 0);
+      console.log('Categories fetched successfully:', data.categories?.length || 0);
       setCategories(data.categories || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -157,51 +157,20 @@ function RecipesContent() {
     // Fetch categories
     fetchCategories();
 
-    // Fetch all recipes on initial load
-    const fetchInitialRecipes = async () => {
-      try {
-        setLoading(true);
-        startLoading(); // Start global loading animation
+    // Use a delay to ensure the session is fully loaded
+    const initialLoadDelay = isSessionLoading ? 2000 : 500;
 
-        const response = await fetch(`/api/recipes?page=1&limit=${pagination.limit}&_t=${Date.now()}`, {
-          cache: 'no-store',
-          headers: {
-            'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
-          }
-        });
+    console.log(`Setting up initial data fetch with ${initialLoadDelay}ms delay...`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch recipes');
-        }
+    const timer = setTimeout(() => {
+      console.log('Executing initial data fetch...');
+      // Use our improved fetchRecipes function for the initial load
+      fetchRecipes(1);
+    }, initialLoadDelay);
 
-        const data = await response.json();
-        setRecipes(data.recipes || []);
-        setPagination({
-          total: data.pagination?.total || 0,
-          page: data.pagination?.page || 1,
-          limit: pagination.limit,
-          pages: data.pagination?.pages || 0,
-        });
-      } catch (err) {
-        console.error('Error fetching initial recipes:', err);
-      } finally {
-        setLoading(false);
-        stopLoading(); // Stop global loading animation
-      }
+    return () => {
+      clearTimeout(timer);
     };
-
-    // Only fetch data if session is not loading
-    if (!isSessionLoading) {
-      fetchInitialRecipes();
-    } else {
-      // If session is loading, wait for it to complete
-      const timer = setTimeout(() => {
-        fetchInitialRecipes();
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSessionLoading]);
 
