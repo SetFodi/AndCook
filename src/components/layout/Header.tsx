@@ -5,7 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaUser, FaBars, FaTimes, FaHome, FaUtensils, FaListAlt, FaEnvelope } from 'react-icons/fa';
+import { GiCook, GiCupcake, GiHotMeal, GiCoffeeCup } from 'react-icons/gi';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const Header: React.FC = () => {
   const { data: session } = useSession();
@@ -56,38 +58,131 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="font-medium relative group">
-              <span
-                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
-              >
-                Home
-              </span>
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link href="/recipes" className="font-medium relative group">
-              <span
-                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
-              >
-                Recipes
-              </span>
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link href="/categories" className="font-medium relative group">
-              <span
-                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
-              >
-                Categories
-              </span>
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link href="/contact" className="font-medium relative group">
-              <span
-                className="text-gray-800 group-hover:text-primary transition-colors duration-200"
-              >
-                Contact
-              </span>
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-            </Link>
+            {/* Home Link with Coffee Cup Animation */}
+            <motion.div
+              whileHover="hover"
+              initial="initial"
+              animate="initial"
+              className="font-medium relative"
+            >
+              <Link href="/" className="group">
+                <div className="flex items-center gap-1.5">
+                  <motion.div
+                    className="text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    variants={{
+                      initial: { y: 0, rotate: 0 },
+                      hover: {
+                        y: [0, -5, 0],
+                        rotate: [0, -5, 5, 0],
+                        transition: { duration: 0.5, ease: "easeInOut", times: [0, 0.2, 0.8, 1] }
+                      }
+                    }}
+                  >
+                    <GiCoffeeCup size={20} />
+                  </motion.div>
+                  <span
+                    className="text-gray-800 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200"
+                  >
+                    Home
+                  </span>
+                </div>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary dark:bg-primary-light group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            </motion.div>
+
+            {/* Recipes Link with Hot Meal Animation */}
+            <motion.div
+              whileHover="hover"
+              initial="initial"
+              animate="initial"
+              className="font-medium relative"
+            >
+              <Link href="/recipes" className="group">
+                <div className="flex items-center gap-1.5">
+                  <motion.div
+                    className="text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    variants={{
+                      initial: { scale: 1 },
+                      hover: {
+                        scale: [1, 1.2, 0.9, 1.1, 1],
+                        transition: { duration: 0.5, ease: "easeInOut" }
+                      }
+                    }}
+                  >
+                    <GiHotMeal size={20} />
+                  </motion.div>
+                  <span
+                    className="text-gray-800 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200"
+                  >
+                    Recipes
+                  </span>
+                </div>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary dark:bg-primary-light group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            </motion.div>
+
+            {/* Categories Link with Cupcake Animation */}
+            <motion.div
+              whileHover="hover"
+              initial="initial"
+              animate="initial"
+              className="font-medium relative"
+            >
+              <Link href="/categories" className="group">
+                <div className="flex items-center gap-1.5">
+                  <motion.div
+                    className="text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    variants={{
+                      initial: { rotate: 0 },
+                      hover: {
+                        rotate: [0, 15, -15, 10, -10, 0],
+                        transition: { duration: 0.6, ease: "easeInOut" }
+                      }
+                    }}
+                  >
+                    <GiCupcake size={20} />
+                  </motion.div>
+                  <span
+                    className="text-gray-800 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200"
+                  >
+                    Categories
+                  </span>
+                </div>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary dark:bg-primary-light group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            </motion.div>
+
+            {/* Contact Link with Cook Animation */}
+            <motion.div
+              whileHover="hover"
+              initial="initial"
+              animate="initial"
+              className="font-medium relative"
+            >
+              <Link href="/contact" className="group">
+                <div className="flex items-center gap-1.5">
+                  <motion.div
+                    className="text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    variants={{
+                      initial: { y: 0, x: 0 },
+                      hover: {
+                        y: [0, -3, 3, -2, 0],
+                        x: [0, 2, -2, 1, 0],
+                        transition: { duration: 0.5, ease: "easeInOut" }
+                      }
+                    }}
+                  >
+                    <GiCook size={20} />
+                  </motion.div>
+                  <span
+                    className="text-gray-800 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200"
+                  >
+                    Contact
+                  </span>
+                </div>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary dark:bg-primary-light group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            </motion.div>
           </nav>
 
           {/* Search Bar */}
@@ -208,45 +303,132 @@ const Header: React.FC = () => {
               <div className="flex justify-between items-center mb-6">
               </div>
               <nav className="flex flex-col space-y-4">
+                {/* Home Link with Coffee Cup Animation */}
                 <Link
                   href="/"
-                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 dark:text-black hover:text-primary dark:hover:text-primary-light py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                  <motion.div
+                    className="mr-3 text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: 0 }}
+                    whileHover={{
+                      rotate: [0, -10, 10, -5, 0],
+                      transition: { duration: 0.5 }
+                    }}
+                    variants={{
+                      hover: {
+                        rotate: [0, -10, 10, -5, 0],
+                        transition: { duration: 0.5 }
+                      }
+                    }}
+                  >
+                    <GiCoffeeCup size={20} />
+                  </motion.div>
+                  <motion.span
+                    className="transform group-hover:translate-x-2 transition-transform duration-300"
+                    onHoverStart={() => {}}
+                  >
                     Home
-                  </span>
-                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
+                  </motion.span>
+                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary dark:bg-primary-light w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
+
+                {/* Recipes Link with Hot Meal Animation */}
                 <Link
                   href="/recipes"
-                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 dark:text-black hover:text-primary dark:hover:text-primary-light py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                  <motion.div
+                    className="mr-3 text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{
+                      scale: [1, 1.2, 0.9, 1.1, 1],
+                      transition: { duration: 0.5 }
+                    }}
+                    variants={{
+                      hover: {
+                        scale: [1, 1.2, 0.9, 1.1, 1],
+                        transition: { duration: 0.5 }
+                      }
+                    }}
+                  >
+                    <GiHotMeal size={20} />
+                  </motion.div>
+                  <motion.span
+                    className="transform group-hover:translate-x-2 transition-transform duration-300"
+                    onHoverStart={() => {}}
+                  >
                     Recipes
-                  </span>
-                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
+                  </motion.span>
+                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary dark:bg-primary-light w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
+
+                {/* Categories Link with Cupcake Animation */}
                 <Link
                   href="/categories"
-                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 dark:text-black hover:text-primary dark:hover:text-primary-light py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                  <motion.div
+                    className="mr-3 text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    initial={{ y: 0 }}
+                    animate={{ y: 0 }}
+                    whileHover={{
+                      y: [0, -5, 0],
+                      transition: { duration: 0.4, repeat: 1, repeatType: "reverse" }
+                    }}
+                    variants={{
+                      hover: {
+                        y: [0, -5, 0],
+                        transition: { duration: 0.4, repeat: 1, repeatType: "reverse" }
+                      }
+                    }}
+                  >
+                    <GiCupcake size={20} />
+                  </motion.div>
+                  <motion.span
+                    className="transform group-hover:translate-x-2 transition-transform duration-300"
+                    onHoverStart={() => {}}
+                  >
                     Categories
-                  </span>
-                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
+                  </motion.span>
+                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary dark:bg-primary-light w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
+
+                {/* Contact Link with Cook Animation */}
                 <Link
                   href="/contact"
-                  className="text-gray-800 hover:text-primary py-2 font-medium relative group flex items-center"
+                  className="text-gray-800 dark:text-black hover:text-primary dark:hover:text-primary-light py-2 font-medium relative group flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                  <motion.div
+                    className="mr-3 text-gray-700 dark:text-black group-hover:text-primary dark:group-hover:text-primary-light"
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: 0 }}
+                    whileHover={{
+                      rotate: [0, 20, -20, 10, 0],
+                      transition: { duration: 0.5 }
+                    }}
+                    variants={{
+                      hover: {
+                        rotate: [0, 20, -20, 10, 0],
+                        transition: { duration: 0.5 }
+                      }
+                    }}
+                  >
+                    <GiCook size={20} />
+                  </motion.div>
+                  <motion.span
+                    className="transform group-hover:translate-x-2 transition-transform duration-300"
+                    onHoverStart={() => {}}
+                  >
                     Contact
-                  </span>
-                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary w-0 group-hover:w-1/4 transition-all duration-300"></span>
+                  </motion.span>
+                  <span className="absolute left-0 bottom-0 h-0.5 bg-primary dark:bg-primary-light w-0 group-hover:w-1/4 transition-all duration-300"></span>
                 </Link>
 
                 <div className="border-t border-gray-200 my-2 pt-4">

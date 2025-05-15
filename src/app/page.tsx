@@ -39,7 +39,7 @@ export default function Home() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+                  className=" bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
                 >
                   Explore Recipes
                 </motion.button>
