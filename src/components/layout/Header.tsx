@@ -207,6 +207,7 @@ const Header: React.FC = () => {
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             {session ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2">
@@ -301,6 +302,7 @@ const Header: React.FC = () => {
                 </div>
               </form>
               <div className="flex justify-between items-center mb-6">
+                <ThemeToggle />
               </div>
               <nav className="flex flex-col space-y-4">
                 {/* Home Link with Coffee Cup Animation */}

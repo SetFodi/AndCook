@@ -36,6 +36,35 @@
   --gray-900: #111827;
 }
 
+html.dark {
+  /* Dark mode base colors */
+  --background: #121212;
+  --foreground: #e5e7eb;
+  --card-bg: #1f2937;
+  --card-border: #374151;
+
+  /* Dark mode text colors */
+  --text-primary: #e5e7eb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #111827;
+
+  /* Dark mode grays */
+  --gray-50: #111827;
+  --gray-100: #1f2937;
+  --gray-200: #374151;
+  --gray-300: #4b5563;
+  --gray-400: #6b7280;
+  --gray-500: #9ca3af;
+  --gray-600: #d1d5db;
+  --gray-700: #e5e7eb;
+  --gray-800: #f3f4f6;
+  --gray-900: #f9fafb;
+  
+  /* Keep brand colors the same except primary-light */
+  --primary-light: #fb923c; /* Make primary-light slightly darker in dark mode */
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -43,6 +72,9 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
   line-height: 1.6;
 }
+
+/* Keep your existing styles below this point */
+
 
 /* Basic styling for the website */
 
