@@ -1,26 +1,24 @@
 import mongoose from 'mongoose';
 
+// Hardcoded connection string that we know works
+const HARDCODED_URI = 'mongodb+srv://setfodimaro:kakilo123@andcook.annqlf9.mongodb.net/?retryWrites=true&w=majority';
+
 // Get the MongoDB URI and clean it up
 let MONGODB_URI = process.env.MONGODB_URI || '';
 
 // Trim any whitespace
 MONGODB_URI = MONGODB_URI.trim();
 
-// Ensure it starts with the correct protocol
-if (MONGODB_URI && !MONGODB_URI.startsWith('mongodb://') && !MONGODB_URI.startsWith('mongodb+srv://')) {
-  // If it doesn't have the protocol, try to fix it
-  if (MONGODB_URI.includes('@') && MONGODB_URI.includes('.mongodb.net')) {
-    // It looks like a MongoDB Atlas URI without the protocol
-    MONGODB_URI = `mongodb+srv://${MONGODB_URI}`;
-    console.log('Fixed MongoDB URI by adding mongodb+srv:// prefix');
-  } else {
-    console.error('Invalid MongoDB URI format:',
-      MONGODB_URI.substring(0, 10) + '...' +
-      ' (length: ' + MONGODB_URI.length + ')'
-    );
-  }
+// Check if the environment variable is valid
+const isValidUri = MONGODB_URI.startsWith('mongodb://') || MONGODB_URI.startsWith('mongodb+srv://');
+
+// If the environment variable is not valid, use the hardcoded URI
+if (!isValidUri) {
+  console.log('Invalid MongoDB URI from environment, using hardcoded URI instead');
+  MONGODB_URI = HARDCODED_URI;
 }
 
+// Final check
 if (!MONGODB_URI) {
   throw new Error(
     'Please define the MONGODB_URI environment variable inside .env.local'

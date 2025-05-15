@@ -1,11 +1,4 @@
 {
   "version": 2,
-  "buildCommand": "next build",
-  "env": {
-    "MONGODB_URI": "MONGODB_URI",
-    "NEXTAUTH_URL": "NEXTAUTH_URL",
-    "NEXTAUTH_SECRET": "NEXTAUTH_SECRET",
-    "EMAIL_USER": "EMAIL_USER",
-    "EMAIL_PASSWORD": "EMAIL_PASSWORD"
-  }
+  "buildCommand": "next build"
 }
