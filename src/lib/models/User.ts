@@ -37,6 +37,17 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-const User = models.User || mongoose.model('User', UserSchema);
+// In production, always create a fresh model to avoid stale data
+let User;
+if (process.env.NODE_ENV === 'production') {
+  // If the model exists, delete it first
+  if (mongoose.models.User) {
+    delete mongoose.models.User;
+  }
+  User = mongoose.model('User', UserSchema);
+} else {
+  // In development, use the cached model
+  User = models.User || mongoose.model('User', UserSchema);
+}
 
 export default User;

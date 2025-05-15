@@ -78,7 +78,8 @@ function RecipesContent() {
       const currentSearchQuery = searchQuery;
       const currentCategories = selectedCategories;
 
-      let url = `/api/recipes?page=${page}&limit=${pagination.limit}`;
+      // Add timestamp to prevent caching
+      let url = `/api/recipes?page=${page}&limit=${pagination.limit}&_t=${Date.now()}`;
 
       if (currentSearchQuery) {
         url += `&search=${encodeURIComponent(currentSearchQuery)}`;
@@ -94,7 +95,13 @@ function RecipesContent() {
       }
 
       console.log('Fetching recipes from:', url);
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch recipes');
@@ -123,7 +130,13 @@ function RecipesContent() {
     try {
       startLoading(); // Start global loading animation
 
-      const response = await fetch('/api/categories');
+      const response = await fetch(`/api/categories?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
@@ -150,7 +163,13 @@ function RecipesContent() {
         setLoading(true);
         startLoading(); // Start global loading animation
 
-        const response = await fetch(`/api/recipes?page=1&limit=${pagination.limit}`);
+        const response = await fetch(`/api/recipes?page=1&limit=${pagination.limit}&_t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        });
 
         if (!response.ok) {
           throw new Error('Failed to fetch recipes');

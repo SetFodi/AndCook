@@ -79,6 +79,17 @@ const RecipeSchema = new Schema(
   { timestamps: true }
 );
 
-const Recipe = models.Recipe || mongoose.model('Recipe', RecipeSchema);
+// In production, always create a fresh model to avoid stale data
+let Recipe;
+if (process.env.NODE_ENV === 'production') {
+  // If the model exists, delete it first
+  if (mongoose.models.Recipe) {
+    delete mongoose.models.Recipe;
+  }
+  Recipe = mongoose.model('Recipe', RecipeSchema);
+} else {
+  // In development, use the cached model
+  Recipe = models.Recipe || mongoose.model('Recipe', RecipeSchema);
+}
 
 export default Recipe;

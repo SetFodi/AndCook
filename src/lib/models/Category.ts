@@ -24,6 +24,17 @@ const CategorySchema = new Schema(
   { timestamps: true }
 );
 
-const Category = models.Category || mongoose.model('Category', CategorySchema);
+// In production, always create a fresh model to avoid stale data
+let Category;
+if (process.env.NODE_ENV === 'production') {
+  // If the model exists, delete it first
+  if (mongoose.models.Category) {
+    delete mongoose.models.Category;
+  }
+  Category = mongoose.model('Category', CategorySchema);
+} else {
+  // In development, use the cached model
+  Category = models.Category || mongoose.model('Category', CategorySchema);
+}
 
 export default Category;

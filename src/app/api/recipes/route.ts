@@ -59,7 +59,8 @@ export async function GET(req: NextRequest) {
 
     const total = await Recipe.countDocuments(query);
 
-    return NextResponse.json({
+    // Create response with cache-busting headers
+    const response = NextResponse.json({
       recipes,
       pagination: {
         total,
@@ -67,7 +68,15 @@ export async function GET(req: NextRequest) {
         limit,
         pages: Math.ceil(total / limit),
       },
+      timestamp: new Date().toISOString(), // Add timestamp for cache busting
     });
+
+    // Add cache control headers to prevent caching
+    response.headers.set('Cache-Control', 'no-store, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    return response;
   } catch (error) {
     console.error('Error fetching recipes:', error);
     return NextResponse.json(
