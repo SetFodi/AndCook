@@ -334,7 +334,7 @@ export default function ProfilePage() {
                 <Button
                   variant="secondary"
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 dark:text-white"
                 >
                   <FaPen size={14} />
                   <span>Edit Profile</span>
@@ -365,14 +365,14 @@ export default function ProfilePage() {
                 )}
 
                 <div className="flex flex-wrap gap-4">
-                  <div className="bg-gray-100 px-4 py-2 rounded-md">
-                    <p className="text-sm text-gray-500">Recipes</p>
-                    <p className="text-xl font-bold">{displayRecipes.length}</p>
+                  <div className="px-4 py-2 rounded-md">
+                    <p className="text-sm text-black">Recipes</p>
+                    <p className="text-xl font-bold text-black">{displayRecipes.length}</p>
                   </div>
 
-                  <div className="bg-gray-100 px-4 py-2 rounded-md">
-                    <p className="text-sm text-gray-500">Favorites</p>
-                    <p className="text-xl font-bold">{displayProfile.favorites?.length || 0}</p>
+                  <div className="px-4 py-2 rounded-md">
+                    <p className="text-sm text-black">Favorites</p>
+                    <p className="text-xl font-bold text-black">{displayProfile.favorites?.length || 0}</p>
                   </div>
                 </div>
               </div>
@@ -433,7 +433,7 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : (
-              <div className="bg-gray-50 p-8 rounded-xl text-center">
+              <div className="p-8 rounded-xl text-center">
                 <FaPlus className="mx-auto text-gray-400 text-4xl mb-4" />
                 <h3 className="text-xl font-medium mb-2">No recipes yet</h3>
                 <p className="text-gray-600 mb-4">
