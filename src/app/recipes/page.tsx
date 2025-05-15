@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -46,7 +46,7 @@ interface Pagination {
   totalRecipes?: number;
 }
 
-export default function RecipesPage() {
+function RecipesContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || '';
@@ -604,5 +604,16 @@ export default function RecipesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main export function with Suspense boundary
+export default function RecipesPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8 flex justify-center items-center h-64">
+      <LoadingIndicator size="large" text="Loading recipes..." />
+    </div>}>
+      <RecipesContent />
+    </Suspense>
   );
 }
