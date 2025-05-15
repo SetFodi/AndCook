@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 
 // Hardcoded connection string that we know works
-const HARDCODED_URI = 'mongodb+srv://setfodimaro:kakilo123@andcook.annqlf9.mongodb.net/?retryWrites=true&w=majority';
+const HARDCODED_URI = process.env.MONGODB_URI_BACKUP || '';
+
 
 // Get the MongoDB URI and clean it up
 let MONGODB_URI = process.env.MONGODB_URI || '';
