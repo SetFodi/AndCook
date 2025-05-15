@@ -1,11 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
+  "buildCommand": "next build",
   "env": {
     "MONGODB_URI": "MONGODB_URI",
     "NEXTAUTH_URL": "NEXTAUTH_URL",

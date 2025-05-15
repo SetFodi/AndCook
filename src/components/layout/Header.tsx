@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSearch, FaUser, FaBars, FaTimes, FaHome, FaUtensils, FaListAlt, FaEnvelope } from 'react-icons/fa';
+import { FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { GiCook, GiCupcake, GiHotMeal, GiCoffeeCup } from 'react-icons/gi';
 import ThemeToggle from '../ui/ThemeToggle';
 
