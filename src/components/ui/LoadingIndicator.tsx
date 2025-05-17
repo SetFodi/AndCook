@@ -123,7 +123,7 @@ export default function LoadingIndicator({
                 variants={iconVariants}
                 animate="animate"
               >
-                <Icon className={`text-orange-${(index % 5) * 100 + 300}`} />
+                <Icon className="text-orange-500" />
               </motion.div>
             );
           })}

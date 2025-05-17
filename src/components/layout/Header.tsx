@@ -289,10 +289,10 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 href="/auth/signin"
-                className="flex items-center space-x-1 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 hover:text-primary dark:hover:text-primary-light"
+                className="flex items-center space-x-1 text-black dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 hover:text-primary dark:hover:text-primary-light"
               >
-                <FaUser className="mr-2 transform group-hover:scale-110 transition-transform duration-300" />
-                <span>Sign In</span>
+                <FaUser className="mr-2 transform group-hover:scale-110 transition-transform duration-300 text-orange-500" />
+                <span className='text-orange-500'>Sign In</span>
               </Link>
             )}
           </div>
